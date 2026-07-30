@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import { getPrice } from "@/lib/pricing";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -36,16 +37,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
+  const supabase = getSupabase();
+
+  const { error: dupError } = await supabase
+    .from("processed_stripe_events")
+    .insert({ event_id: event.id });
+  if (dupError) {
+    return NextResponse.json({ received: true });
+  }
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+    const meta = session.metadata || {};
 
-    await getSupabase()
-      .from("reservations")
-      .update({
-        status: "confirmed",
+    if (meta.date && meta.slots) {
+      const slots: number[] = JSON.parse(meta.slots);
+      const reservationDate = new Date(meta.date + "T00:00:00");
+      const reservations = slots.map((hour) => ({
+        reservation_date: meta.date,
+        slot_hour: hour,
+        total_price: getPrice(reservationDate, hour) ?? 0,
+        customer_name: meta.customerName || "",
+        customer_email: session.customer_email || "",
+        customer_phone: meta.customerPhone || "",
+        address: meta.address || null,
+        purpose: meta.purpose || null,
+        notes: meta.notes || null,
+        stripe_session_id: session.id,
         stripe_payment_intent_id: session.payment_intent as string,
-      })
-      .eq("stripe_session_id", session.id);
+        status: "confirmed",
+      }));
+
+      await supabase.from("ysbase_reservations").insert(reservations);
+    }
   }
 
   return NextResponse.json({ received: true });

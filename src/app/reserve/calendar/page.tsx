@@ -10,7 +10,8 @@ import {
   User,
   Mail,
   Phone,
-  Users,
+  MapPin,
+  Target,
   CreditCard,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
@@ -23,8 +24,8 @@ interface ReservationData {
   name: string;
   email: string;
   phone: string;
-  teamName: string;
-  playerCount: string;
+  address: string;
+  purpose: string;
   notes: string;
 }
 
@@ -40,8 +41,8 @@ export default function ReservationCalendarPage() {
     name: "",
     email: "",
     phone: "",
-    teamName: "",
-    playerCount: "",
+    address: "",
+    purpose: "",
     notes: "",
   });
   const [submitting, setSubmitting] = useState(false);
@@ -107,11 +108,32 @@ export default function ReservationCalendarPage() {
 
   async function handleSubmit() {
     setSubmitting(true);
-    // In production, this would call the API to create a Stripe checkout session
-    // For now, simulate the process
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setCompleted(true);
-    setSubmitting(false);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: data.date!.toISOString().split("T")[0],
+          slots: data.selectedSlots,
+          customerName: data.name,
+          customerEmail: data.email,
+          customerPhone: data.phone,
+          address: data.address,
+          purpose: data.purpose,
+          notes: data.notes,
+        }),
+      });
+      const result = await res.json();
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        setCompleted(true);
+      }
+    } catch {
+      alert("エラーが発生しました。もう一度お試しください。");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (completed) {
@@ -402,40 +424,48 @@ export default function ReservationCalendarPage() {
                 />
               </div>
               <div>
-                <label htmlFor="res-team" className="flex items-center gap-2 text-sm font-bold text-primary mb-2">
-                  <Users size={16} />
-                  チーム名・団体名
+                <label htmlFor="res-address" className="flex items-center gap-2 text-sm font-bold text-primary mb-2">
+                  <MapPin size={16} />
+                  住所
                 </label>
                 <input
                   type="text"
-                  id="res-team"
-                  value={data.teamName}
-                  onChange={(e) => setData((d) => ({ ...d, teamName: e.target.value }))}
+                  id="res-address"
+                  value={data.address}
+                  onChange={(e) => setData((d) => ({ ...d, address: e.target.value }))}
+                  placeholder="例：神奈川県横浜市瀬谷区..."
                   className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                 />
               </div>
               <div>
-                <label htmlFor="res-count" className="flex items-center gap-2 text-sm font-bold text-primary mb-2">
-                  利用人数（目安）
+                <label htmlFor="res-purpose" className="flex items-center gap-2 text-sm font-bold text-primary mb-2">
+                  <Target size={16} />
+                  利用目的
                 </label>
-                <input
-                  type="text"
-                  id="res-count"
-                  value={data.playerCount}
-                  onChange={(e) => setData((d) => ({ ...d, playerCount: e.target.value }))}
-                  placeholder="例：20名"
-                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none"
-                />
+                <select
+                  id="res-purpose"
+                  value={data.purpose}
+                  onChange={(e) => setData((d) => ({ ...d, purpose: e.target.value }))}
+                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none bg-white"
+                >
+                  <option value="">選択してください</option>
+                  <option value="練習">練習</option>
+                  <option value="試合">試合</option>
+                  <option value="イベント">イベント</option>
+                  <option value="スクール">スクール</option>
+                  <option value="その他">その他</option>
+                </select>
               </div>
               <div>
                 <label htmlFor="res-notes" className="text-sm font-bold text-primary mb-2 block">
-                  備考
+                  その他
                 </label>
                 <textarea
                   id="res-notes"
                   value={data.notes}
                   onChange={(e) => setData((d) => ({ ...d, notes: e.target.value }))}
                   rows={3}
+                  placeholder="ご要望やご質問などがあればご記入ください"
                   className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none resize-vertical"
                 />
               </div>
@@ -515,22 +545,22 @@ export default function ReservationCalendarPage() {
                     <span className="text-gray-500">電話番号</span>
                     <p className="font-medium">{data.phone}</p>
                   </div>
-                  {data.teamName && (
+                  {data.address && (
                     <div>
-                      <span className="text-gray-500">チーム名</span>
-                      <p className="font-medium">{data.teamName}</p>
+                      <span className="text-gray-500">住所</span>
+                      <p className="font-medium">{data.address}</p>
                     </div>
                   )}
-                  {data.playerCount && (
+                  {data.purpose && (
                     <div>
-                      <span className="text-gray-500">利用人数</span>
-                      <p className="font-medium">{data.playerCount}</p>
+                      <span className="text-gray-500">利用目的</span>
+                      <p className="font-medium">{data.purpose}</p>
                     </div>
                   )}
                 </div>
                 {data.notes && (
                   <div>
-                    <span className="text-gray-500">備考</span>
+                    <span className="text-gray-500">その他</span>
                     <p className="font-medium">{data.notes}</p>
                   </div>
                 )}
@@ -546,7 +576,7 @@ export default function ReservationCalendarPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-xs text-gray-500">
-                「予約を確定する」をクリックすると、利用規約に同意したものとみなされます。
+                「お支払いへ進む」をクリックすると、利用規約に同意したものとみなされます。
               </p>
               <button
                 onClick={handleSubmit}
@@ -558,7 +588,7 @@ export default function ReservationCalendarPage() {
                 ) : (
                   <>
                     <CreditCard size={18} />
-                    予約を確定する
+                    お支払いへ進む
                   </>
                 )}
               </button>

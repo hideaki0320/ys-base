@@ -1,7 +1,7 @@
 -- YS-BASE 予約テーブル
--- ▶ YS-BASE Supabase プロジェクトの SQL Editor で実行
+-- ▶ yscc-ticket (palwtkhsdladgvpmtkcv) の SQL Editor で実行
 
-create table if not exists reservations (
+create table if not exists ysbase_reservations (
   id uuid default gen_random_uuid() primary key,
   reservation_date date not null,
   slot_hour integer not null check (slot_hour >= 9 and slot_hour <= 20),
@@ -9,8 +9,8 @@ create table if not exists reservations (
   customer_name text not null,
   customer_email text not null,
   customer_phone text not null,
-  team_name text,
-  player_count text,
+  address text,
+  purpose text,
   notes text,
   stripe_session_id text,
   stripe_payment_intent_id text,
@@ -18,12 +18,11 @@ create table if not exists reservations (
   created_at timestamptz default now(),
   updated_at timestamptz default now(),
 
-  -- 同じ日の同じ時間帯に重複予約を防ぐ
   unique (reservation_date, slot_hour, status)
 );
 
 -- updated_at 自動更新トリガー
-create or replace function update_updated_at_column()
+create or replace function ysbase_update_updated_at()
 returns trigger as $$
 begin
   new.updated_at = now();
@@ -31,16 +30,16 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger if exists set_updated_at on reservations;
+drop trigger if exists set_updated_at on ysbase_reservations;
 create trigger set_updated_at
-  before update on reservations
+  before update on ysbase_reservations
   for each row
-  execute function update_updated_at_column();
+  execute function ysbase_update_updated_at();
 
 -- RLS: service_role でのみアクセス（API Route 経由のみ）
-alter table reservations enable row level security;
+alter table ysbase_reservations enable row level security;
 
 -- インデックス
-create index if not exists idx_reservations_date on reservations (reservation_date);
-create index if not exists idx_reservations_status on reservations (status);
-create index if not exists idx_reservations_email on reservations (customer_email);
+create index if not exists idx_ysbase_reservations_date on ysbase_reservations (reservation_date);
+create index if not exists idx_ysbase_reservations_status on ysbase_reservations (status);
+create index if not exists idx_ysbase_reservations_email on ysbase_reservations (customer_email);

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { getPrice } from "@/lib/pricing";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -10,7 +11,14 @@ function getStripe() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { date, slots, totalPrice, customerName, customerEmail, customerPhone, teamName } = body;
+    const { date, slots, customerName, customerEmail, customerPhone, address, purpose, notes } = body;
+
+    const reservationDate = new Date(date + "T00:00:00");
+    const serverTotal = (slots as number[]).reduce((sum: number, hour: number) => {
+      const p = getPrice(reservationDate, hour);
+      if (p === null) throw new Error(`invalid slot: ${hour}`);
+      return sum + p;
+    }, 0);
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
@@ -25,7 +33,7 @@ export async function POST(request: Request) {
               name: `YS-BASE コート予約`,
               description: `${date} ${slots.join("、")}`,
             },
-            unit_amount: totalPrice,
+            unit_amount: serverTotal,
           },
           quantity: 1,
         },
@@ -35,7 +43,9 @@ export async function POST(request: Request) {
         slots: JSON.stringify(slots),
         customerName,
         customerPhone,
-        teamName: teamName || "",
+        address: address || "",
+        purpose: purpose || "",
+        notes: notes || "",
       },
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/reserve/complete?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/reserve/calendar`,

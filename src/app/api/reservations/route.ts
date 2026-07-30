@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   }
 
   const { data, error } = await getSupabase()
-    .from("reservations")
+    .from("ysbase_reservations")
     .select("slot_hour, status")
     .eq("reservation_date", date)
     .in("status", ["confirmed", "pending"]);
@@ -30,43 +30,3 @@ export async function GET(request: Request) {
   return NextResponse.json({ bookedSlots });
 }
 
-export async function POST(request: Request) {
-  const body = await request.json();
-  const {
-    date,
-    slots,
-    totalPrice,
-    customerName,
-    customerEmail,
-    customerPhone,
-    teamName,
-    playerCount,
-    notes,
-    stripeSessionId,
-  } = body;
-
-  const reservations = (slots as number[]).map((hour: number) => ({
-    reservation_date: date,
-    slot_hour: hour,
-    total_price: totalPrice,
-    customer_name: customerName,
-    customer_email: customerEmail,
-    customer_phone: customerPhone,
-    team_name: teamName || null,
-    player_count: playerCount || null,
-    notes: notes || null,
-    stripe_session_id: stripeSessionId || null,
-    status: stripeSessionId ? "confirmed" : "pending",
-  }));
-
-  const { data, error } = await getSupabase()
-    .from("reservations")
-    .insert(reservations)
-    .select();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ reservations: data });
-}
