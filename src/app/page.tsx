@@ -288,7 +288,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             <div className="aspect-video bg-gray-100 overflow-hidden rounded-sm">
               <iframe
-                src="https://maps.google.com/maps?q=%E6%A8%AA%E6%B5%9C%E5%B8%82%E7%80%AC%E8%B0%B7%E5%8C%BA%E4%B8%8B%E7%80%AC%E8%B0%B71%E4%B8%81%E7%9B%AE&t=m&z=15&output=embed&hl=ja"
+                src="https://maps.google.com/maps?q=YS-BASE%20%E6%A8%AA%E6%B5%9C%E5%B8%82%E7%80%AC%E8%B0%B7%E5%8C%BA%E4%B8%8B%E7%80%AC%E8%B0%B71%E4%B8%81%E7%9B%AE41-4&t=m&z=16&output=embed&hl=ja"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -305,7 +305,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="font-bold text-primary text-sm mb-1">所在地</h3>
-                  <p className="text-sm text-gray-600">〒246-0035 神奈川県横浜市瀬谷区下瀬谷1丁目</p>
+                  <p className="text-sm text-gray-600">〒246-0035 神奈川県横浜市瀬谷区下瀬谷1丁目41-4</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">

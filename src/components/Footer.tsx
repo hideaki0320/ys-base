@@ -57,7 +57,7 @@ export function Footer() {
             <div className="space-y-2.5 text-sm text-white/60">
               <div className="flex items-start gap-2.5">
                 <MapPin size={14} className="mt-0.5 shrink-0 text-accent/60" />
-                <span>〒246-0035 神奈川県横浜市瀬谷区下瀬谷1丁目</span>
+                <span>〒246-0035 神奈川県横浜市瀬谷区下瀬谷1丁目41-4</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone size={14} className="shrink-0 text-accent/60" />

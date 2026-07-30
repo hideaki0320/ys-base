@@ -74,7 +74,7 @@ export default function FacilityPage() {
                       ["コート数", "メインコート + サブコート"],
                       ["駐車場", "38台（砂利敷・無料）"],
                       ["フェンス", "コンクリート支柱・ナイロンネット（H=10m）"],
-                      ["所在地", "横浜市瀬谷区下瀬谷1丁目（環状4号線沿い）"],
+                      ["所在地", "横浜市瀬谷区下瀬谷1丁目41-4（環状4号線沿い）"],
                     ].map(([label, value]) => (
                       <tr key={label}>
                         <th className="py-3.5 pr-4 text-left font-bold text-primary w-28">{label}</th>
