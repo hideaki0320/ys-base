@@ -48,7 +48,12 @@ function formatDate(dateStr: string) {
 }
 
 export default function AdminPage() {
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("ysbase_admin_key") || "";
+    }
+    return "";
+  });
   const [authenticated, setAuthenticated] = useState(false);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(false);
@@ -72,6 +77,7 @@ export default function AdminPage() {
       if (!res.ok) {
         if (res.status === 401) {
           setAuthenticated(false);
+          sessionStorage.removeItem("ysbase_admin_key");
           alert("認証に失敗しました。APIキーを確認してください。");
           return;
         }
@@ -80,12 +86,20 @@ export default function AdminPage() {
       const data = await res.json();
       setReservations(data.reservations || []);
       setAuthenticated(true);
+      sessionStorage.setItem("ysbase_admin_key", apiKey);
     } catch {
       alert("データの取得に失敗しました");
     } finally {
       setLoading(false);
     }
   }, [apiKey, statusFilter, dateFrom, dateTo]);
+
+  useEffect(() => {
+    if (apiKey && !authenticated) {
+      fetchReservations();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (authenticated) {

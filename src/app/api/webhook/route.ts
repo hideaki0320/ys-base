@@ -17,10 +17,12 @@ function getSupabase() {
 }
 
 export async function POST(request: Request) {
+  console.log("[webhook] POST received");
   const body = await request.text();
   const sig = request.headers.get("stripe-signature");
 
   if (!sig) {
+    console.log("[webhook] No signature header");
     return NextResponse.json({ error: "No signature" }, { status: 400 });
   }
 
@@ -33,22 +35,25 @@ export async function POST(request: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err) {
-    console.error("Webhook signature verification failed:", err);
+    console.error("[webhook] Signature verification failed:", err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
+  console.log("[webhook] Event verified:", event.type, event.id);
   const supabase = getSupabase();
 
   const { error: dupError } = await supabase
     .from("processed_stripe_events")
     .insert({ event_id: event.id });
   if (dupError) {
+    console.log("[webhook] Duplicate event, skipping:", event.id);
     return NextResponse.json({ received: true });
   }
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const meta = session.metadata || {};
+    console.log("[webhook] checkout.session.completed, metadata:", JSON.stringify(meta));
 
     if (meta.date && meta.slots) {
       const slots: number[] = JSON.parse(meta.slots);
@@ -68,7 +73,14 @@ export async function POST(request: Request) {
         status: "confirmed",
       }));
 
-      await supabase.from("ysbase_reservations").insert(reservations);
+      const { error: insertError } = await supabase.from("ysbase_reservations").insert(reservations);
+      if (insertError) {
+        console.error("[webhook] Insert failed:", insertError);
+      } else {
+        console.log("[webhook] Reservations created:", reservations.length);
+      }
+    } else {
+      console.log("[webhook] Missing metadata (date/slots)");
     }
   }
 
