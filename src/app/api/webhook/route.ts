@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     .from("processed_stripe_events")
     .insert({ event_id: event.id });
   if (dupError) {
-    console.log("[webhook] Duplicate event, skipping:", event.id);
+    console.error("[webhook] processed_stripe_events insert error:", JSON.stringify(dupError));
     return NextResponse.json({ received: true });
   }
 
