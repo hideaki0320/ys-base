@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, ChevronDown, MapPin, Clock, Car, Landmark, CalendarCheck, BadgeJapaneseYen, Navigation } from "lucide-react";
+import { ChevronRight, ChevronDown, MapPin, Clock, Car } from "lucide-react";
 
 const menuCards = [
   {
@@ -8,28 +8,24 @@ const menuCards = [
     title: "施設を知る",
     subtitle: "FACILITY",
     description: "天然芝コートの詳細と施設案内",
-    icon: Landmark,
   },
   {
     href: "/reserve/calendar",
     title: "コートを予約する",
     subtitle: "RESERVE",
     description: "予約方法と空き状況の確認",
-    icon: CalendarCheck,
   },
   {
     href: "/pricing",
     title: "料金を確認する",
     subtitle: "PRICING",
     description: "時間帯・曜日別の利用料金",
-    icon: BadgeJapaneseYen,
   },
   {
     href: "/access",
     title: "アクセス",
     subtitle: "ACCESS",
     description: "駐車場・交通案内",
-    icon: Navigation,
   },
 ];
 
@@ -124,21 +120,16 @@ export default function Home() {
       <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {menuCards.map((card) => {
-              const Icon = card.icon;
-              return (
+            {menuCards.map((card) => (
                 <Link
                   key={card.href}
                   href={card.href}
                   className="group bg-white p-7 border border-gray-100 hover:border-accent/30 card-hover rounded-sm"
                 >
-                  <div className="w-10 h-10 bg-primary/5 flex items-center justify-center mb-5 group-hover:bg-accent/10 transition-colors rounded-sm">
-                    <Icon size={20} className="text-primary/70 group-hover:text-accent transition-colors" />
-                  </div>
                   <p className="text-[10px] text-accent tracking-[0.2em] font-medium mb-1.5 uppercase">
                     {card.subtitle}
                   </p>
-                  <h3 className="text-base font-bold text-primary mb-2 group-hover:text-primary-light transition-colors">
+                  <h3 className="text-lg font-bold text-primary mb-2 group-hover:text-primary-light transition-colors">
                     {card.title}
                   </h3>
                   <p className="text-[13px] text-gray-500 mb-4 leading-relaxed">{card.description}</p>
@@ -150,8 +141,7 @@ export default function Home() {
                     />
                   </div>
                 </Link>
-              );
-            })}
+            ))}
           </div>
         </div>
       </section>
@@ -184,16 +174,16 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-3">
               <div className="relative aspect-[3/4] overflow-hidden rounded-sm">
                 <Image
-                  src="/images/court-1.jpg"
-                  alt="YS-BASE コート写真1"
+                  src="/images/image1.png"
+                  alt="YS-BASE 天然芝でのサッカー練習風景"
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-700"
                 />
               </div>
               <div className="relative aspect-[3/4] overflow-hidden rounded-sm mt-8">
                 <Image
-                  src="/images/court-3.jpg"
-                  alt="YS-BASE コート写真2"
+                  src="/images/image2.png"
+                  alt="YS-BASE ジュニア選手のプレー"
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-700"
                 />
@@ -215,7 +205,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
-                <Image src="/images/court-2.jpg" alt="天然芝" fill className="object-cover" />
+                <Image src="/images/natural_grass.png" alt="YS-BASE 天然芝フィールド全景" fill className="object-cover" />
               </div>
               <h3 className="text-lg font-bold text-primary mb-2">天然芝のフィールド</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
@@ -223,8 +213,8 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
-                <Image src="/images/court-4.jpg" alt="広い敷地" fill className="object-cover" />
+              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6 bg-white">
+                <Image src="/images/Soccer_field_diagram.png" alt="YS-BASE 施設配置図" fill className="object-contain p-2" />
               </div>
               <h3 className="text-lg font-bold text-primary mb-2">充実した施設環境</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
@@ -233,7 +223,7 @@ export default function Home() {
             </div>
             <div className="text-center">
               <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
-                <Image src="/images/court-1.jpg" alt="駐車場" fill className="object-cover" />
+                <Image src="/images/parking_img.png" alt="YS-BASE 無料駐車場" fill className="object-cover" />
               </div>
               <h3 className="text-lg font-bold text-primary mb-2">38台の無料駐車場</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
@@ -298,7 +288,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             <div className="aspect-video bg-gray-100 overflow-hidden rounded-sm">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3254.5!2d139.483!3d35.463!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z5qiq5rWc5biC54Cs6LC35Yy65LiL54Cs6LCy!5e0!3m2!1sja!2sjp!4v1"
+                src="https://maps.google.com/maps?q=%E6%A8%AA%E6%B5%9C%E5%B8%82%E7%80%AC%E8%B0%B7%E5%8C%BA%E4%B8%8B%E7%80%AC%E8%B0%B71%E4%B8%81%E7%9B%AE&t=m&z=15&output=embed&hl=ja"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
