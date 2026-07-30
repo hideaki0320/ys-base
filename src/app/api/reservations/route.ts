@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!
+  );
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -14,7 +16,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "date parameter required" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("reservations")
     .select("slot_hour, status")
     .eq("reservation_date", date)
@@ -57,7 +59,7 @@ export async function POST(request: Request) {
     status: stripeSessionId ? "confirmed" : "pending",
   }));
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("reservations")
     .insert(reservations)
     .select();
