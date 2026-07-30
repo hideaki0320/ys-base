@@ -16,6 +16,40 @@ function getSupabase() {
   );
 }
 
+async function getDiscountInfo(
+  stripe: Stripe,
+  session: Stripe.Checkout.Session
+): Promise<{ promotionCode: string | null; discountAmount: number }> {
+  const sessionAny = session as unknown as { total_details?: { amount_discount?: number } };
+  const discountAmount = sessionAny.total_details?.amount_discount || 0;
+
+  if (discountAmount === 0) {
+    return { promotionCode: null, discountAmount: 0 };
+  }
+
+  let promotionCode: string | null = null;
+  try {
+    const retrieved = await stripe.checkout.sessions.retrieve(session.id, {
+      expand: ["discounts.promotion_code"],
+    });
+    const discounts = (
+      retrieved as unknown as { discounts?: Array<{ promotion_code?: { code?: string }; coupon?: { name?: string } }> }
+    ).discounts;
+    if (Array.isArray(discounts) && discounts.length > 0) {
+      const d = discounts[0];
+      if (d.promotion_code?.code) {
+        promotionCode = d.promotion_code.code;
+      } else if (d.coupon?.name) {
+        promotionCode = d.coupon.name;
+      }
+    }
+  } catch (e) {
+    console.error("[webhook] Failed to retrieve promotion code:", e);
+  }
+
+  return { promotionCode, discountAmount };
+}
+
 export async function POST(request: Request) {
   console.log("[webhook] POST received");
   const body = await request.text();
@@ -26,9 +60,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No signature" }, { status: 400 });
   }
 
+  const stripe = getStripe();
   let event: Stripe.Event;
   try {
-    const stripe = getStripe();
     event = stripe.webhooks.constructEvent(
       body,
       sig,
@@ -58,20 +92,39 @@ export async function POST(request: Request) {
     if (meta.date && meta.slots) {
       const slots: number[] = JSON.parse(meta.slots);
       const reservationDate = new Date(meta.date + "T00:00:00");
-      const reservations = slots.map((hour) => ({
-        reservation_date: meta.date,
-        slot_hour: hour,
-        total_price: getPrice(reservationDate, hour) ?? 0,
-        customer_name: meta.customerName || "",
-        customer_email: session.customer_email || "",
-        customer_phone: meta.customerPhone || "",
-        address: meta.address || null,
-        purpose: meta.purpose || null,
-        notes: meta.notes || null,
-        stripe_session_id: session.id,
-        stripe_payment_intent_id: session.payment_intent as string,
-        status: "confirmed",
-      }));
+
+      const { promotionCode, discountAmount } = await getDiscountInfo(stripe, session);
+      if (discountAmount > 0) {
+        console.log("[webhook] Discount applied:", discountAmount, "code:", promotionCode);
+      }
+
+      const subtotal = slots.reduce(
+        (sum, hour) => sum + (getPrice(reservationDate, hour) ?? 0),
+        0
+      );
+
+      const reservations = slots.map((hour) => {
+        const slotPrice = getPrice(reservationDate, hour) ?? 0;
+        const slotDiscount =
+          subtotal > 0 ? Math.round(discountAmount * (slotPrice / subtotal)) : 0;
+
+        return {
+          reservation_date: meta.date,
+          slot_hour: hour,
+          total_price: slotPrice,
+          discount_amount: slotDiscount,
+          promotion_code: promotionCode,
+          customer_name: meta.customerName || "",
+          customer_email: session.customer_email || "",
+          customer_phone: meta.customerPhone || "",
+          address: meta.address || null,
+          purpose: meta.purpose || null,
+          notes: meta.notes || null,
+          stripe_session_id: session.id,
+          stripe_payment_intent_id: session.payment_intent as string,
+          status: "confirmed",
+        };
+      });
 
       const { error: insertError } = await supabase.from("ysbase_reservations").insert(reservations);
       if (insertError) {

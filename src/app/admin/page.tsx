@@ -12,6 +12,7 @@ import {
   CircleX,
   Clock3,
   CheckCircle2,
+  Tag,
 } from "lucide-react";
 
 interface Reservation {
@@ -22,6 +23,8 @@ interface Reservation {
   customer_name: string;
   customer_email: string;
   customer_phone: string;
+  discount_amount: number;
+  promotion_code: string | null;
   address: string | null;
   purpose: string | null;
   notes: string | null;
@@ -132,7 +135,7 @@ export default function AdminPage() {
     cancelled: reservations.filter((r) => r.status === "cancelled").length,
     revenue: reservations
       .filter((r) => r.status === "confirmed" || r.status === "completed")
-      .reduce((sum, r) => sum + r.total_price, 0),
+      .reduce((sum, r) => sum + r.total_price - (r.discount_amount || 0), 0),
   };
 
   if (!authenticated) {
@@ -290,8 +293,23 @@ export default function AdminPage() {
                             <span className="text-sm text-gray-500 truncate hidden sm:inline">
                               {r.customer_email}
                             </span>
+                            {r.promotion_code && (
+                              <span className="text-[11px] font-bold px-1.5 py-0.5 border border-purple-200 bg-purple-50 text-purple-700 rounded-sm shrink-0 hidden sm:inline-flex items-center gap-0.5">
+                                <Tag size={10} />
+                                {r.promotion_code}
+                              </span>
+                            )}
                             <span className="text-sm font-bold text-gray-800 ml-auto shrink-0">
-                              {r.total_price.toLocaleString()}円
+                              {r.discount_amount > 0 ? (
+                                <span className="flex items-center gap-1.5">
+                                  <span className="text-gray-400 line-through text-xs font-normal">
+                                    {r.total_price.toLocaleString()}
+                                  </span>
+                                  {(r.total_price - r.discount_amount).toLocaleString()}円
+                                </span>
+                              ) : (
+                                <>{r.total_price.toLocaleString()}円</>
+                              )}
                             </span>
                             {isExpanded ? (
                               <ChevronUp size={16} className="text-gray-400 shrink-0" />
@@ -330,6 +348,34 @@ export default function AdminPage() {
                                   <div className="sm:col-span-2">
                                     <span className="text-gray-500 text-xs">その他</span>
                                     <p className="font-medium text-gray-800">{r.notes}</p>
+                                  </div>
+                                )}
+                                {(r.discount_amount > 0 || r.promotion_code) && (
+                                  <div className="sm:col-span-2 lg:col-span-3 bg-purple-50 border border-purple-100 rounded-sm p-3">
+                                    <span className="text-purple-600 text-xs font-bold flex items-center gap-1 mb-1.5">
+                                      <Tag size={12} />
+                                      クーポン利用
+                                    </span>
+                                    <div className="flex flex-wrap gap-4 text-sm">
+                                      {r.promotion_code && (
+                                        <div>
+                                          <span className="text-gray-500 text-xs">コード</span>
+                                          <p className="font-bold text-purple-700">{r.promotion_code}</p>
+                                        </div>
+                                      )}
+                                      <div>
+                                        <span className="text-gray-500 text-xs">定価</span>
+                                        <p className="font-medium text-gray-800">{r.total_price.toLocaleString()}円</p>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-500 text-xs">割引額</span>
+                                        <p className="font-medium text-red-600">-{r.discount_amount.toLocaleString()}円</p>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-500 text-xs">実際の支払額</span>
+                                        <p className="font-bold text-gray-900">{(r.total_price - r.discount_amount).toLocaleString()}円</p>
+                                      </div>
+                                    </div>
                                   </div>
                                 )}
                                 <div>
