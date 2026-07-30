@@ -4,7 +4,11 @@ import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "アクセス",
-  description: "YS-BASEへのアクセス方法。駐車場38台完備。環状4号線沿い。",
+  description: "YS-BASEへのアクセス方法。横浜市瀬谷区下瀬谷1丁目41-4、環状4号線沿い。駐車場38台（無料）完備。相鉄線「瀬谷」駅からバス・タクシー。",
+  openGraph: {
+    title: "アクセス | YS-BASE",
+    description: "環状4号線沿い、駐車場38台無料完備。相鉄線「瀬谷」駅からバス・タクシー。",
+  },
 };
 
 export default function AccessPage() {

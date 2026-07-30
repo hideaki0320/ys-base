@@ -6,7 +6,11 @@ import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "施設概要",
-  description: "YS-BASEの施設情報。天然芝のメインコート・サブコート、駐車場38台完備。",
+  description: "YS-BASEの施設情報。約6,100㎡の敷地に天然芝のメインコート・サブコートの2面を完備。駐車場38台（無料）。横浜市瀬谷区、環状4号線沿い。",
+  openGraph: {
+    title: "施設概要 | YS-BASE",
+    description: "約6,100㎡の天然芝サッカーコート。メインコート・サブコートの2面、無料駐車場38台完備。",
+  },
 };
 
 export default function FacilityPage() {

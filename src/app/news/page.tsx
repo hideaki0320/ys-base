@@ -5,7 +5,11 @@ import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "お知らせ",
-  description: "YS-BASEからのお知らせ一覧。",
+  description: "YS-BASEからのお知らせ・ニュース一覧。予約受付情報、施設メンテナンス、イベント情報など。",
+  openGraph: {
+    title: "お知らせ | YS-BASE",
+    description: "YS-BASEの最新情報。予約受付、施設メンテナンス、イベント情報。",
+  },
 };
 
 const newsItems = [

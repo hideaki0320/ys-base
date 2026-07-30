@@ -5,7 +5,11 @@ import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "料金表",
-  description: "YS-BASEの利用料金。時間帯・曜日別の料金表。",
+  description: "YS-BASEの利用料金一覧（税込）。平日¥5,500〜¥16,500、土日祝¥13,200〜¥16,500。時間帯・曜日別の詳細料金表。",
+  openGraph: {
+    title: "料金表 | YS-BASE",
+    description: "平日¥5,500〜、土日祝¥13,200〜。時間帯・曜日別の利用料金をご確認いただけます。",
+  },
 };
 
 const weekdayPrices = [
