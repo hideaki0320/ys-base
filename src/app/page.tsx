@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, MapPin, Clock, Car } from "lucide-react";
+import { ChevronRight, ChevronDown, MapPin, Clock, Car, Landmark, CalendarCheck, BadgeJapaneseYen, Navigation } from "lucide-react";
 
 const menuCards = [
   {
@@ -8,40 +8,47 @@ const menuCards = [
     title: "施設を知る",
     subtitle: "FACILITY",
     description: "天然芝コートの詳細と施設案内",
+    icon: Landmark,
   },
   {
-    href: "/reserve",
+    href: "/reserve/calendar",
     title: "コートを予約する",
     subtitle: "RESERVE",
     description: "予約方法と空き状況の確認",
+    icon: CalendarCheck,
   },
   {
     href: "/pricing",
     title: "料金を確認する",
     subtitle: "PRICING",
     description: "時間帯・曜日別の利用料金",
+    icon: BadgeJapaneseYen,
   },
   {
     href: "/access",
     title: "アクセス",
     subtitle: "ACCESS",
     description: "駐車場・交通案内",
+    icon: Navigation,
   },
 ];
 
 const newsItems = [
   {
-    date: "2026/7/30",
+    date: "2026.07.30",
+    category: "お知らせ",
     title: "YS-BASE ホームページを公開しました",
     slug: "website-launch",
   },
   {
-    date: "2026/7/25",
+    date: "2026.07.25",
+    category: "予約",
     title: "8月の予約受付を開始しました",
     slug: "august-reservations",
   },
   {
-    date: "2026/7/15",
+    date: "2026.07.15",
+    category: "お知らせ",
     title: "施設利用規約を更新しました",
     slug: "terms-update",
   },
@@ -50,125 +57,145 @@ const newsItems = [
 export default function Home() {
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative h-screen min-h-[600px] max-h-[900px]">
+      {/* ─── Hero ─── */}
+      <section className="relative h-screen min-h-[600px] max-h-[960px]">
         <Image
-          src="/images/court-4.jpg"
+          src="/images/hero_img.png"
           alt="YS-BASE サッカーコート"
           fill
           className="object-cover"
           priority
         />
         <div className="absolute inset-0 hero-gradient" />
+
         <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
-          <p className="text-accent text-sm sm:text-base tracking-[0.3em] mb-4 font-medium">
-            SPORTS PARK BY YSCC
+          {/* YSCC emblem */}
+          <div className="animate-fade-in-up mb-6">
+            <Image
+              src="/images/icon-512.png"
+              alt="YSCC"
+              width={72}
+              height={72}
+              className="w-14 h-14 sm:w-[72px] sm:h-[72px] opacity-90"
+            />
+          </div>
+
+          <p className="animate-fade-in-up animate-delay-100 text-accent/90 text-xs sm:text-sm tracking-[0.4em] mb-4 font-medium uppercase">
+            Sports Park by YSCC
           </p>
-          <h1 className="text-white text-5xl sm:text-7xl lg:text-8xl font-black tracking-wider mb-6">
+
+          <h1 className="animate-fade-in-up animate-delay-200 text-white text-5xl sm:text-7xl lg:text-8xl font-black tracking-wider mb-5">
             YS-BASE
           </h1>
-          <p className="text-white/90 text-base sm:text-lg max-w-xl leading-relaxed mb-10">
+
+          <div className="animate-fade-in-up animate-delay-200 w-12 h-[2px] bg-accent/60 mb-6" />
+
+          <p className="animate-fade-in-up animate-delay-300 text-white/70 text-sm sm:text-base max-w-lg leading-relaxed mb-10">
             横浜市瀬谷区の天然芝サッカーコート。
             <br className="hidden sm:block" />
             Y.S.C.C.横浜が運営するスポーツパーク。
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+
+          <div className="animate-fade-in-up animate-delay-400 flex flex-col sm:flex-row gap-3">
             <Link
-              href="/reserve"
-              className="bg-accent hover:bg-accent-dark text-primary font-bold px-8 py-4 text-base transition-colors flex items-center justify-center gap-2"
+              href="/reserve/calendar"
+              className="bg-accent hover:bg-accent-dark text-primary-dark font-bold px-8 py-3.5 text-sm transition-all flex items-center justify-center gap-2 rounded-sm"
             >
               コートを予約する
-              <ChevronRight size={18} />
+              <ChevronRight size={16} strokeWidth={2.5} />
             </Link>
             <Link
               href="/facility"
-              className="border-2 border-white/80 hover:border-accent hover:text-accent text-white font-bold px-8 py-4 text-base transition-colors flex items-center justify-center gap-2"
+              className="border border-white/30 hover:border-white/60 hover:bg-white/5 text-white font-medium px-8 py-3.5 text-sm transition-all flex items-center justify-center gap-2 rounded-sm"
             >
               施設概要を見る
-              <ChevronRight size={18} />
+              <ChevronRight size={16} />
             </Link>
           </div>
         </div>
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 text-xs tracking-widest animate-bounce">
-          SCROLL
+
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+          <span className="text-white/30 text-[10px] tracking-[0.3em] uppercase">Scroll</span>
+          <ChevronDown size={16} className="text-white/30 animate-scroll-pulse" />
         </div>
       </section>
 
-      {/* Menu Cards */}
-      <section className="py-16 sm:py-24 bg-gray-50">
+      {/* ─── Menu Cards ─── */}
+      <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-accent text-sm tracking-[0.3em] font-medium mb-2">MAIN MENU</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {menuCards.map((card) => (
-              <Link
-                key={card.href}
-                href={card.href}
-                className="group bg-white p-8 border border-gray-200 hover:border-accent hover:shadow-lg transition-all"
-              >
-                <p className="text-accent text-xs tracking-widest font-medium mb-2">
-                  {card.subtitle}
-                </p>
-                <h3 className="text-lg font-bold text-primary mb-3 group-hover:text-primary-light transition-colors">
-                  {card.title}
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">{card.description}</p>
-                <div className="flex items-center text-accent text-sm font-medium">
-                  <span>詳しく見る</span>
-                  <ChevronRight
-                    size={16}
-                    className="ml-1 group-hover:translate-x-1 transition-transform"
-                  />
-                </div>
-              </Link>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {menuCards.map((card) => {
+              const Icon = card.icon;
+              return (
+                <Link
+                  key={card.href}
+                  href={card.href}
+                  className="group bg-white p-7 border border-gray-100 hover:border-accent/30 card-hover rounded-sm"
+                >
+                  <div className="w-10 h-10 bg-primary/5 flex items-center justify-center mb-5 group-hover:bg-accent/10 transition-colors rounded-sm">
+                    <Icon size={20} className="text-primary/70 group-hover:text-accent transition-colors" />
+                  </div>
+                  <p className="text-[10px] text-accent tracking-[0.2em] font-medium mb-1.5 uppercase">
+                    {card.subtitle}
+                  </p>
+                  <h3 className="text-base font-bold text-primary mb-2 group-hover:text-primary-light transition-colors">
+                    {card.title}
+                  </h3>
+                  <p className="text-[13px] text-gray-500 mb-4 leading-relaxed">{card.description}</p>
+                  <div className="flex items-center text-accent text-[13px] font-medium">
+                    <span>詳しく見る</span>
+                    <ChevronRight
+                      size={14}
+                      className="ml-0.5 group-hover:translate-x-1 transition-transform"
+                    />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="py-16 sm:py-24">
+      {/* ─── About ─── */}
+      <section className="py-20 sm:py-28 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
             <div>
-              <p className="text-accent text-sm tracking-[0.3em] font-medium mb-2">ABOUT</p>
-              <h2 className="text-3xl sm:text-4xl font-black text-primary mb-6 section-title">
+              <p className="text-accent text-[10px] tracking-[0.3em] font-medium mb-3 uppercase">About</p>
+              <h2 className="text-2xl sm:text-3xl font-black text-primary mb-6 section-title">
                 YS-BASEについて
               </h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
+              <p className="text-gray-600 leading-[1.9] text-[15px] mb-4">
                 YS-BASE（ワイエスベース）は、Y.S.C.C.横浜が運営する横浜市瀬谷区のスポーツパークです。
-                約6,100㎡の敷地に広がる天然芝のサッカーコートで、少年サッカーからシニアまで、
-                幅広い世代の方々にご利用いただけます。
+                約6,100㎡の敷地に広がる天然芝のサッカーコートで、少年サッカーからシニアまで幅広い世代の方々にご利用いただけます。
               </p>
-              <p className="text-gray-700 leading-relaxed mb-6">
-                メインコートとサブコートを備え、試合や練習、イベントなど、
-                さまざまな用途でお使いいただけます。
+              <p className="text-gray-600 leading-[1.9] text-[15px] mb-8">
+                メインコートとサブコートを備え、試合や練習、イベントなど、さまざまな用途でお使いいただけます。
                 38台分の駐車場も完備しています。
               </p>
               <Link
                 href="/facility"
-                className="inline-flex items-center gap-2 text-accent hover:text-accent-dark font-bold transition-colors"
+                className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors"
               >
                 施設の詳細を見る
-                <ChevronRight size={18} />
+                <ChevronRight size={16} />
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="relative aspect-[3/4] overflow-hidden">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-sm">
                 <Image
                   src="/images/court-1.jpg"
                   alt="YS-BASE コート写真1"
                   fill
-                  className="object-cover"
+                  className="object-cover hover:scale-105 transition-transform duration-700"
                 />
               </div>
-              <div className="relative aspect-[3/4] overflow-hidden mt-8">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-sm mt-8">
                 <Image
                   src="/images/court-3.jpg"
                   alt="YS-BASE コート写真2"
                   fill
-                  className="object-cover"
+                  className="object-cover hover:scale-105 transition-transform duration-700"
                 />
               </div>
             </div>
@@ -176,52 +203,100 @@ export default function Home() {
         </div>
       </section>
 
-      {/* News Section */}
-      <section className="py-16 sm:py-24 bg-gray-50">
+      {/* ─── Features ─── */}
+      <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-accent text-sm tracking-[0.3em] font-medium mb-2">NEWS</p>
-            <h2 className="text-3xl font-black text-primary section-title section-title-center">
-              お知らせ
+          <div className="text-center mb-14">
+            <p className="text-accent text-[10px] tracking-[0.3em] font-medium mb-3 uppercase">Features</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-primary section-title section-title-center">
+              YS-BASEの特徴
             </h2>
           </div>
-          <div className="max-w-3xl mx-auto space-y-0 divide-y divide-gray-200">
-            {newsItems.map((item) => (
-              <Link
-                key={item.slug}
-                href={`/news/${item.slug}`}
-                className="flex items-start gap-4 py-5 group hover:bg-white px-4 -mx-4 transition-colors"
-              >
-                <time className="text-sm text-gray-500 shrink-0 pt-0.5">{item.date}</time>
-                <span className="text-gray-800 group-hover:text-primary transition-colors">
-                  {item.title}
-                </span>
-              </Link>
-            ))}
-          </div>
-          <div className="text-center mt-8">
-            <Link
-              href="/news"
-              className="inline-flex items-center gap-2 text-accent hover:text-accent-dark font-bold transition-colors"
-            >
-              お知らせ一覧
-              <ChevronRight size={18} />
-            </Link>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
+                <Image src="/images/court-2.jpg" alt="天然芝" fill className="object-cover" />
+              </div>
+              <h3 className="text-lg font-bold text-primary mb-2">天然芝のフィールド</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                プロクラブが管理する天然芝で、足腰に優しい快適なプレーをお楽しみいただけます。
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
+                <Image src="/images/court-4.jpg" alt="広い敷地" fill className="object-cover" />
+              </div>
+              <h3 className="text-lg font-bold text-primary mb-2">充実した施設環境</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                約6,100㎡の広大な敷地に、メインコートとサブコートの2面を完備しています。
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
+                <Image src="/images/court-1.jpg" alt="駐車場" fill className="object-cover" />
+              </div>
+              <h3 className="text-lg font-bold text-primary mb-2">38台の無料駐車場</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                環状4号線沿いの好立地。大型車両も駐車可能な広い駐車スペースを無料でご利用いただけます。
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Access Section */}
-      <section className="py-16 sm:py-24">
+      {/* ─── News ─── */}
+      <section className="py-20 sm:py-28 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <p className="text-accent text-[10px] tracking-[0.3em] font-medium mb-3 uppercase">News</p>
+              <h2 className="text-2xl sm:text-3xl font-black text-primary section-title section-title-center">
+                お知らせ
+              </h2>
+            </div>
+            <div className="space-y-0 divide-y divide-gray-200">
+              {newsItems.map((item) => (
+                <Link
+                  key={item.slug}
+                  href={`/news/${item.slug}`}
+                  className="flex items-start sm:items-center gap-3 sm:gap-5 py-5 group hover:bg-white px-5 -mx-5 transition-colors rounded-sm"
+                >
+                  <time className="text-xs text-gray-400 shrink-0 tabular-nums font-medium pt-0.5 sm:pt-0">
+                    {item.date}
+                  </time>
+                  <span className="text-[10px] font-bold text-accent bg-accent/10 px-2 py-0.5 shrink-0 rounded-sm">
+                    {item.category}
+                  </span>
+                  <span className="text-sm text-gray-700 group-hover:text-primary transition-colors">
+                    {item.title}
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <div className="text-center mt-10">
+              <Link
+                href="/news"
+                className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors"
+              >
+                お知らせ一覧
+                <ChevronRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Access ─── */}
+      <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-accent text-sm tracking-[0.3em] font-medium mb-2">ACCESS</p>
-            <h2 className="text-3xl font-black text-primary section-title section-title-center">
+            <p className="text-accent text-[10px] tracking-[0.3em] font-medium mb-3 uppercase">Access</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-primary section-title section-title-center">
               アクセス
             </h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className="aspect-video bg-gray-200 overflow-hidden">
+            <div className="aspect-video bg-gray-100 overflow-hidden rounded-sm">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3254.5!2d139.483!3d35.463!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z5qiq5rWc5biC54Cs6LC35Yy65LiL54Cs6LCy!5e0!3m2!1sja!2sjp!4v1"
                 width="100%"
@@ -235,43 +310,43 @@ export default function Home() {
             </div>
             <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-primary/10 flex items-center justify-center shrink-0">
-                  <MapPin size={20} className="text-primary" />
+                <div className="w-9 h-9 bg-primary/5 flex items-center justify-center shrink-0 rounded-sm">
+                  <MapPin size={18} className="text-primary/70" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-primary mb-1">所在地</h3>
-                  <p className="text-gray-700">〒246-0035 神奈川県横浜市瀬谷区下瀬谷1丁目</p>
+                  <h3 className="font-bold text-primary text-sm mb-1">所在地</h3>
+                  <p className="text-sm text-gray-600">〒246-0035 神奈川県横浜市瀬谷区下瀬谷1丁目</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-primary/10 flex items-center justify-center shrink-0">
-                  <Car size={20} className="text-primary" />
+                <div className="w-9 h-9 bg-primary/5 flex items-center justify-center shrink-0 rounded-sm">
+                  <Car size={18} className="text-primary/70" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-primary mb-1">駐車場</h3>
-                  <p className="text-gray-700">38台（砂利敷）</p>
+                  <h3 className="font-bold text-primary text-sm mb-1">駐車場</h3>
+                  <p className="text-sm text-gray-600">38台（砂利敷・無料）</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-primary/10 flex items-center justify-center shrink-0">
-                  <Clock size={20} className="text-primary" />
+                <div className="w-9 h-9 bg-primary/5 flex items-center justify-center shrink-0 rounded-sm">
+                  <Clock size={18} className="text-primary/70" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-primary mb-1">営業時間</h3>
-                  <p className="text-gray-700">
+                  <h3 className="font-bold text-primary text-sm mb-1">営業時間</h3>
+                  <p className="text-sm text-gray-600">
                     平日 14:00〜21:00 / 土日 9:00〜21:00
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     ※平日午前はメンテナンス＋地域利用
                   </p>
                 </div>
               </div>
               <Link
                 href="/access"
-                className="inline-flex items-center gap-2 text-accent hover:text-accent-dark font-bold transition-colors mt-4"
+                className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors mt-2"
               >
                 アクセスの詳細
-                <ChevronRight size={18} />
+                <ChevronRight size={16} />
               </Link>
             </div>
           </div>

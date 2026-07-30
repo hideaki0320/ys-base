@@ -10,30 +10,30 @@ export default function ReservationCompletePage() {
   return (
     <div className="pt-20 min-h-screen bg-gray-50">
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <div className="bg-white p-8 sm:p-12 border border-gray-200">
-          <div className="w-16 h-16 bg-green-100 flex items-center justify-center mx-auto mb-6">
-            <CircleCheck size={32} className="text-green-600" />
+        <div className="bg-white p-8 sm:p-12 border border-gray-100 rounded-sm">
+          <div className="w-14 h-14 bg-green-50 flex items-center justify-center mx-auto mb-6 rounded-full">
+            <CircleCheck size={28} className="text-green-600" />
           </div>
           <h1 className="text-2xl font-black text-primary mb-4">
             お支払いが完了しました
           </h1>
-          <p className="text-gray-700 leading-relaxed mb-8">
+          <p className="text-sm text-gray-500 leading-relaxed mb-8">
             ご予約・お支払いいただきありがとうございます。
             <br />
             利用確定のご案内メールをお送りいたしました。
             <br />
             当日のご来場をお待ちしております。
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/"
-              className="bg-primary hover:bg-primary-dark text-white font-bold px-8 py-3 transition-colors"
+              className="bg-primary hover:bg-primary-light text-white font-bold px-8 py-3 text-sm transition-colors rounded-sm"
             >
               トップに戻る
             </Link>
             <Link
               href="/reserve/calendar"
-              className="border border-primary text-primary hover:bg-primary/5 font-bold px-8 py-3 transition-colors"
+              className="border border-gray-200 text-primary hover:bg-gray-50 font-bold px-8 py-3 text-sm transition-colors rounded-sm"
             >
               別の日を予約する
             </Link>

@@ -45,47 +45,46 @@ export default function PricingPage() {
 
       <section className="py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <p className="text-gray-600">
-              記載金額はすべて<strong>税込</strong>・<strong>1時間あたり</strong>の料金です。
+          <div className="max-w-3xl mx-auto text-center mb-14">
+            <p className="text-gray-500 text-[15px]">
+              記載金額はすべて<strong className="text-primary">税込</strong>・<strong className="text-primary">1時間あたり</strong>の料金です。
             </p>
           </div>
 
-          {/* 平日料金表 */}
           <div className="mb-16">
-            <h2 className="text-2xl font-black text-primary mb-6 section-title">
+            <h2 className="text-xl sm:text-2xl font-black text-primary mb-6 section-title">
               平日（月〜金）
             </h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
+            <div className="overflow-x-auto rounded-sm border border-gray-100">
+              <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-primary text-white">
-                    <th className="py-3 px-3 text-left font-bold">時間</th>
-                    <th className="py-3 px-3 text-center font-bold">月</th>
-                    <th className="py-3 px-3 text-center font-bold">火</th>
-                    <th className="py-3 px-3 text-center font-bold">水</th>
-                    <th className="py-3 px-3 text-center font-bold">木</th>
-                    <th className="py-3 px-3 text-center font-bold">金</th>
+                    <th className="py-3 px-3 text-left font-bold text-[13px]">時間</th>
+                    <th className="py-3 px-3 text-center font-bold text-[13px]">月</th>
+                    <th className="py-3 px-3 text-center font-bold text-[13px]">火</th>
+                    <th className="py-3 px-3 text-center font-bold text-[13px]">水</th>
+                    <th className="py-3 px-3 text-center font-bold text-[13px]">木</th>
+                    <th className="py-3 px-3 text-center font-bold text-[13px]">金</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-100">
                   {weekdayPrices.map((row) => (
                     <tr
                       key={row.time}
-                      className={row.note ? "bg-green-field/5" : "hover:bg-gray-50"}
+                      className={row.note ? "bg-gray-50" : "hover:bg-gray-50/50 transition-colors"}
                     >
-                      <td className="py-3 px-3 font-medium text-primary">{row.time}</td>
+                      <td className="py-3 px-3 font-medium text-primary text-[13px]">{row.time}</td>
                       {row.note ? (
-                        <td colSpan={5} className="py-3 px-3 text-center text-gray-500 italic">
+                        <td colSpan={5} className="py-3 px-3 text-center text-gray-400 text-[13px]">
                           {row.note}
                         </td>
                       ) : (
                         <>
-                          <td className="py-3 px-3 text-center">{row.mon}</td>
-                          <td className="py-3 px-3 text-center">{row.tue}</td>
-                          <td className="py-3 px-3 text-center">{row.wed}</td>
-                          <td className="py-3 px-3 text-center">{row.thu}</td>
-                          <td className="py-3 px-3 text-center">{row.fri}</td>
+                          <td className="py-3 px-3 text-center text-[13px] tabular-nums">{row.mon}</td>
+                          <td className="py-3 px-3 text-center text-[13px] tabular-nums">{row.tue}</td>
+                          <td className="py-3 px-3 text-center text-[13px] tabular-nums">{row.wed}</td>
+                          <td className="py-3 px-3 text-center text-[13px] tabular-nums">{row.thu}</td>
+                          <td className="py-3 px-3 text-center text-[13px] tabular-nums">{row.fri}</td>
                         </>
                       )}
                     </tr>
@@ -93,30 +92,31 @@ export default function PricingPage() {
                 </tbody>
               </table>
             </div>
-            <div className="mt-4 flex items-start gap-2 text-sm text-gray-600">
-              <Info size={16} className="shrink-0 mt-0.5" />
+            <div className="mt-4 flex items-start gap-2 text-[13px] text-gray-500">
+              <Info size={14} className="shrink-0 mt-0.5 text-accent" />
               <p>
                 平日午前（9:00〜14:00頃）はメンテナンス＋幼稚園・保育園・敬老会などの地域利用枠（3Hで10,000円）となります。
               </p>
             </div>
           </div>
 
-          {/* 土日料金表 */}
           <div className="mb-16">
-            <h2 className="text-2xl font-black text-primary mb-6 section-title">土日・祝日</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse max-w-lg">
+            <h2 className="text-xl sm:text-2xl font-black text-primary mb-6 section-title">
+              土日・祝日
+            </h2>
+            <div className="overflow-x-auto rounded-sm border border-gray-100 max-w-lg">
+              <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-primary text-white">
-                    <th className="py-3 px-4 text-left font-bold">時間</th>
-                    <th className="py-3 px-4 text-center font-bold">料金（税込）</th>
+                    <th className="py-3 px-4 text-left font-bold text-[13px]">時間</th>
+                    <th className="py-3 px-4 text-center font-bold text-[13px]">料金（税込）</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-100">
                   {weekendPrices.map((row) => (
-                    <tr key={row.time} className="hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-primary">{row.time}</td>
-                      <td className="py-3 px-4 text-center font-bold">{row.price}</td>
+                    <tr key={row.time} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-3 px-4 font-medium text-primary text-[13px]">{row.time}</td>
+                      <td className="py-3 px-4 text-center font-bold text-[13px] tabular-nums">{row.price}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -124,37 +124,30 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* 注意事項 */}
-          <div className="bg-gray-50 p-6 sm:p-8">
-            <h3 className="font-bold text-primary mb-4">料金に関する注意事項</h3>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start gap-2">
-                <span className="text-accent font-bold shrink-0">・</span>
-                上記料金はコート1面あたりの料金です。
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent font-bold shrink-0">・</span>
-                ナイター利用（18:00〜21:00）は照明費を含む料金です。
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent font-bold shrink-0">・</span>
-                連続利用の場合は割引がございます。詳しくはお問い合わせください。
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent font-bold shrink-0">・</span>
-                料金は予告なく変更される場合がございます。
-              </li>
+          <div className="bg-gray-50 p-6 sm:p-8 rounded-sm border border-gray-100">
+            <h3 className="font-bold text-primary mb-4 text-sm">料金に関する注意事項</h3>
+            <ul className="space-y-2.5 text-[13px] text-gray-600">
+              {[
+                "上記料金はコート1面あたりの料金です。",
+                "ナイター利用（18:00〜21:00）は照明費を含む料金です。",
+                "連続利用の場合は割引がございます。詳しくはお問い合わせください。",
+                "料金は予告なく変更される場合がございます。",
+              ].map((text) => (
+                <li key={text} className="flex items-start gap-2">
+                  <span className="w-1 h-1 bg-accent rounded-full shrink-0 mt-2" />
+                  {text}
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* CTA */}
-          <div className="mt-12 text-center">
+          <div className="mt-14 text-center">
             <Link
-              href="/reserve"
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-dark text-primary font-bold px-8 py-4 text-base transition-colors"
+              href="/reserve/calendar"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-dark text-primary-dark font-bold px-8 py-3.5 text-sm transition-all rounded-sm"
             >
               コートを予約する
-              <ChevronRight size={18} />
+              <ChevronRight size={16} strokeWidth={2.5} />
             </Link>
           </div>
         </div>
