@@ -94,7 +94,7 @@ export function Footer() {
           </div>
 
           {/* Legal */}
-          <div className="md:col-span-1">
+          <div className="md:col-span-2">
             <h4 className="text-[11px] font-bold text-white/40 tracking-[0.2em] mb-5 uppercase">
               Legal
             </h4>
@@ -117,7 +117,7 @@ export function Footer() {
           </div>
 
           {/* Info */}
-          <div className="md:col-span-3">
+          <div className="md:col-span-2">
             <h4 className="text-[11px] font-bold text-white/40 tracking-[0.2em] mb-5 uppercase">
               Information
             </h4>
