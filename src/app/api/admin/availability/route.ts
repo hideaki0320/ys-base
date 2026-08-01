@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await getSupabase()
     .from("ysbase_slot_availability")
-    .select("date, slot_hour, is_available")
+    .select("date, slot_hour, is_available, reason")
     .gte("date", from)
     .lte("date", to);
 
@@ -46,17 +46,62 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { date, slot_hour, is_available } = body as {
+  const supabase = getSupabase();
+
+  // Batch mode: dates[] × slot_hours[]
+  if (Array.isArray(body.dates) && Array.isArray(body.slot_hours)) {
+    const { dates, slot_hours, is_available, reason } = body as {
+      dates: string[];
+      slot_hours: number[];
+      is_available: boolean;
+      reason?: string;
+    };
+
+    let affected = 0;
+
+    if (is_available) {
+      for (const date of dates) {
+        await supabase
+          .from("ysbase_slot_availability")
+          .delete()
+          .eq("date", date)
+          .in("slot_hour", slot_hours);
+      }
+      affected = dates.length * slot_hours.length;
+    } else {
+      const rows = dates.flatMap((date) =>
+        slot_hours.map((slot_hour) => ({
+          date,
+          slot_hour,
+          is_available: false,
+          reason: reason || null,
+        }))
+      );
+
+      const { error } = await supabase
+        .from("ysbase_slot_availability")
+        .upsert(rows, { onConflict: "date,slot_hour" });
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      affected = rows.length;
+    }
+
+    return NextResponse.json({ ok: true, affected });
+  }
+
+  // Single mode: date × slot_hour (backward compatible)
+  const { date, slot_hour, is_available, reason } = body as {
     date: string;
     slot_hour: number;
     is_available: boolean;
+    reason?: string;
   };
 
   if (!date || slot_hour === undefined || is_available === undefined) {
     return NextResponse.json({ error: "date, slot_hour, is_available required" }, { status: 400 });
   }
-
-  const supabase = getSupabase();
 
   if (is_available) {
     const { error } = await supabase
@@ -72,7 +117,7 @@ export async function POST(request: Request) {
     const { error } = await supabase
       .from("ysbase_slot_availability")
       .upsert(
-        { date, slot_hour, is_available: false },
+        { date, slot_hour, is_available: false, reason: reason || null },
         { onConflict: "date,slot_hour" }
       );
 
