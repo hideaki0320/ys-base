@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -47,12 +47,33 @@ export default function ReservationCalendarPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState<number[]>([]);
+  const [closedSlots, setClosedSlots] = useState<number[]>([]);
 
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
+
+  const fetchSlotStatus = useCallback(async (date: Date) => {
+    const dateStr = date.toISOString().split("T")[0];
+    try {
+      const res = await fetch(`/api/reservations?date=${dateStr}`);
+      const json = await res.json();
+      setBookedSlots(json.bookedSlots || []);
+      setClosedSlots(json.closedSlots || []);
+    } catch {
+      setBookedSlots([]);
+      setClosedSlots([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (data.date) {
+      fetchSlotStatus(data.date);
+    }
+  }, [data.date, fetchSlotStatus]);
 
   const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear();
@@ -70,8 +91,10 @@ export default function ReservationCalendarPage() {
 
   const availableSlots = useMemo(() => {
     if (!data.date) return [];
-    return getAvailableSlots(data.date);
-  }, [data.date]);
+    return getAvailableSlots(data.date).filter(
+      (s) => !bookedSlots.includes(s.hour) && !closedSlots.includes(s.hour)
+    );
+  }, [data.date, bookedSlots, closedSlots]);
 
   const totalPrice = useMemo(() => {
     return availableSlots

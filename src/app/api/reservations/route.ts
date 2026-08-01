@@ -16,17 +16,27 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "date parameter required" }, { status: 400 });
   }
 
-  const { data, error } = await getSupabase()
-    .from("ysbase_reservations")
-    .select("slot_hour, status")
-    .eq("reservation_date", date)
-    .in("status", ["confirmed", "pending"]);
+  const supabase = getSupabase();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  const [reservationsResult, availabilityResult] = await Promise.all([
+    supabase
+      .from("ysbase_reservations")
+      .select("slot_hour, status")
+      .eq("reservation_date", date)
+      .in("status", ["confirmed", "pending"]),
+    supabase
+      .from("ysbase_slot_availability")
+      .select("slot_hour, is_available")
+      .eq("date", date)
+      .eq("is_available", false),
+  ]);
+
+  if (reservationsResult.error) {
+    return NextResponse.json({ error: reservationsResult.error.message }, { status: 500 });
   }
 
-  const bookedSlots = data.map((r) => r.slot_hour);
-  return NextResponse.json({ bookedSlots });
-}
+  const bookedSlots = reservationsResult.data.map((r) => r.slot_hour);
+  const closedSlots = (availabilityResult.data || []).map((r) => r.slot_hour);
 
+  return NextResponse.json({ bookedSlots, closedSlots });
+}
