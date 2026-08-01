@@ -93,7 +93,6 @@ export default function AdminPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [cancellingId, setCancellingId] = useState<string | null>(null);
-  const [cancelRefund, setCancelRefund] = useState(true);
 
   /* ═══ AVAILABILITY STATE ═══ */
   const [availMonth, setAvailMonth] = useState(() => {
@@ -108,6 +107,9 @@ export default function AdminPage() {
   const [batchSaving, setBatchSaving] = useState(false);
   const [reason, setReason] = useState("");
   const [confirmAction, setConfirmAction] = useState<"close" | "open" | null>(null);
+  const [lastClickedDate, setLastClickedDate] = useState<string | null>(null);
+  const [rangeFrom, setRangeFrom] = useState("");
+  const [rangeTo, setRangeTo] = useState("");
 
   const todayDate = useMemo(() => {
     const d = new Date();
@@ -266,13 +268,42 @@ export default function AdminPage() {
 
   /* ─── date selection helpers ─── */
 
-  function toggleDate(dateStr: string) {
+  function addDateRange(fromStr: string, toStr: string) {
+    const from = new Date(fromStr + "T00:00:00");
+    const to = new Date(toStr + "T00:00:00");
+    const start = from <= to ? from : to;
+    const end = from <= to ? to : from;
     setSelectedDates((prev) => {
       const next = new Set(prev);
-      if (next.has(dateStr)) next.delete(dateStr);
-      else next.add(dateStr);
+      const cursor = new Date(start);
+      while (cursor <= end) {
+        if (cursor >= todayDate) {
+          const slots = getAvailableSlots(cursor);
+          if (slots.length > 0) next.add(toDateStr(cursor));
+        }
+        cursor.setDate(cursor.getDate() + 1);
+      }
       return next;
     });
+  }
+
+  function handleDateClick(dateStr: string, shiftKey: boolean) {
+    if (shiftKey && lastClickedDate) {
+      addDateRange(lastClickedDate, dateStr);
+    } else {
+      setSelectedDates((prev) => {
+        const next = new Set(prev);
+        if (next.has(dateStr)) next.delete(dateStr);
+        else next.add(dateStr);
+        return next;
+      });
+    }
+    setLastClickedDate(dateStr);
+  }
+
+  function applyRange() {
+    if (!rangeFrom || !rangeTo) return;
+    addDateRange(rangeFrom, rangeTo);
   }
 
   function selectDatePattern(predicate: (d: Date) => boolean) {
@@ -555,20 +586,19 @@ export default function AdminPage() {
                                       <div className="bg-red-50 border border-red-200 rounded-sm p-4">
                                         <p className="text-sm font-bold text-red-800 mb-3">この予約をキャンセルしますか？</p>
                                         {r.stripe_payment_intent_id && (
-                                          <label className="flex items-center gap-2 text-sm text-gray-700 mb-4 cursor-pointer">
-                                            <input type="checkbox" checked={cancelRefund} onChange={(e) => setCancelRefund(e.target.checked)} className="w-4 h-4 rounded border-gray-300" />
-                                            <Undo2 size={14} className="text-blue-600" />Stripe経由で全額返金する
-                                          </label>
+                                          <p className="text-sm text-gray-600 mb-4 flex items-center gap-1.5">
+                                            <Undo2 size={14} className="text-blue-600" />Stripe経由で全額返金されます
+                                          </p>
                                         )}
                                         <div className="flex gap-2">
-                                          <button onClick={() => handleCancel(r.id, cancelRefund && !!r.stripe_payment_intent_id)} className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 text-sm rounded-sm transition-colors flex items-center gap-1.5">
-                                            <Ban size={14} />{cancelRefund && r.stripe_payment_intent_id ? "キャンセル＋返金" : "キャンセルのみ"}
+                                          <button onClick={() => handleCancel(r.id, !!r.stripe_payment_intent_id)} className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 text-sm rounded-sm transition-colors flex items-center gap-1.5">
+                                            <Ban size={14} />キャンセル
                                           </button>
                                           <button onClick={() => setCancellingId(null)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-4 py-2 text-sm rounded-sm transition-colors">やめる</button>
                                         </div>
                                       </div>
                                     ) : (
-                                      <button onClick={() => { setCancellingId(r.id); setCancelRefund(true); }} className="text-red-600 hover:text-red-700 text-sm font-bold flex items-center gap-1.5 transition-colors">
+                                      <button onClick={() => setCancellingId(r.id)} className="text-red-600 hover:text-red-700 text-sm font-bold flex items-center gap-1.5 transition-colors">
                                         <Ban size={14} />キャンセル
                                       </button>
                                     )}
@@ -592,35 +622,67 @@ export default function AdminPage() {
           <>
             {/* Quick Pattern Buttons */}
             <div className="bg-white border border-gray-200 rounded-sm p-4 mb-6">
-              <p className="text-xs font-bold text-gray-500 mb-3">日付をまとめて選択</p>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={selectWeekdays} className="px-3 py-1.5 text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-sm hover:bg-blue-100 transition-colors">
-                  今月の平日
-                </button>
-                <button onClick={selectWeekends} className="px-3 py-1.5 text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-sm hover:bg-blue-100 transition-colors">
-                  今月の土日
-                </button>
-                <span className="w-px h-6 bg-gray-200 self-center" />
-                {WEEKDAY_LABELS.map((label, dow) => (
-                  <button
-                    key={dow}
-                    onClick={() => selectByDow(dow)}
-                    className={`w-8 h-8 text-xs font-bold border rounded-sm transition-colors ${
-                      dow === 0 ? "text-red-600 border-red-200 bg-red-50 hover:bg-red-100"
-                        : dow === 6 ? "text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100"
-                          : "text-gray-700 border-gray-200 bg-gray-50 hover:bg-gray-100"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-                <span className="w-px h-6 bg-gray-200 self-center" />
-                {selectedDates.size > 0 && (
-                  <button onClick={() => setSelectedDates(new Set())} className="px-3 py-1.5 text-xs font-bold text-gray-500 border border-gray-200 rounded-sm hover:bg-gray-100 transition-colors flex items-center gap-1">
-                    <X size={12} />選択解除
-                  </button>
-                )}
+              <div className="flex flex-wrap items-end gap-6">
+                <div>
+                  <p className="text-xs font-bold text-gray-500 mb-3">パターン選択</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={selectWeekdays} className="px-3 py-1.5 text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-sm hover:bg-blue-100 transition-colors">
+                      今月の平日
+                    </button>
+                    <button onClick={selectWeekends} className="px-3 py-1.5 text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-sm hover:bg-blue-100 transition-colors">
+                      今月の土日
+                    </button>
+                    <span className="w-px h-6 bg-gray-200 self-center" />
+                    {WEEKDAY_LABELS.map((label, dow) => (
+                      <button
+                        key={dow}
+                        onClick={() => selectByDow(dow)}
+                        className={`w-8 h-8 text-xs font-bold border rounded-sm transition-colors ${
+                          dow === 0 ? "text-red-600 border-red-200 bg-red-50 hover:bg-red-100"
+                            : dow === 6 ? "text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100"
+                              : "text-gray-700 border-gray-200 bg-gray-50 hover:bg-gray-100"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                    {selectedDates.size > 0 && (
+                      <>
+                        <span className="w-px h-6 bg-gray-200 self-center" />
+                        <button onClick={() => setSelectedDates(new Set())} className="px-3 py-1.5 text-xs font-bold text-gray-500 border border-gray-200 rounded-sm hover:bg-gray-100 transition-colors flex items-center gap-1">
+                          <X size={12} />選択解除
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-500 mb-3">期間指定</p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="date"
+                      value={rangeFrom}
+                      onChange={(e) => setRangeFrom(e.target.value)}
+                      className="border border-gray-300 px-2.5 py-1.5 text-xs rounded-sm"
+                    />
+                    <span className="text-gray-400 text-xs">〜</span>
+                    <input
+                      type="date"
+                      value={rangeTo}
+                      onChange={(e) => setRangeTo(e.target.value)}
+                      className="border border-gray-300 px-2.5 py-1.5 text-xs rounded-sm"
+                    />
+                    <button
+                      onClick={applyRange}
+                      disabled={!rangeFrom || !rangeTo}
+                      className="px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-sm hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      選択に追加
+                    </button>
+                  </div>
+                </div>
               </div>
+              <p className="text-[11px] text-gray-400 mt-3">カレンダー上で Shift+クリック で範囲選択もできます</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -654,7 +716,7 @@ export default function AdminPage() {
                         <button
                           key={dateStr}
                           disabled={isPast || !hasSlots}
-                          onClick={() => toggleDate(dateStr)}
+                          onClick={(e) => handleDateClick(dateStr, e.shiftKey)}
                           className={`py-2.5 text-sm transition-all relative rounded-sm ${
                             isSelected
                               ? "bg-blue-600 text-white font-bold ring-2 ring-blue-300"
