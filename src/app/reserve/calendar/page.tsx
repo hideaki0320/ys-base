@@ -56,6 +56,12 @@ export default function ReservationCalendarPage() {
     return d;
   }, []);
 
+  const maxDate = useMemo(() => {
+    const d = new Date(today);
+    d.setMonth(d.getMonth() + 2);
+    return d;
+  }, [today]);
+
   const fetchSlotStatus = useCallback(async (date: Date) => {
     const dateStr = date.toISOString().split("T")[0];
     try {
@@ -102,11 +108,14 @@ export default function ReservationCalendarPage() {
       .reduce((sum, s) => sum + s.price, 0);
   }, [availableSlots, data.selectedSlots]);
 
+  const canGoPrev = currentMonth > new Date(today.getFullYear(), today.getMonth(), 1);
+  const canGoNext = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1) < maxDate;
+
   function prevMonth() {
-    setCurrentMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
+    if (canGoPrev) setCurrentMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
   }
   function nextMonth() {
-    setCurrentMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
+    if (canGoNext) setCurrentMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
   }
 
   function selectDate(date: Date) {
@@ -125,6 +134,7 @@ export default function ReservationCalendarPage() {
 
   function isDateSelectable(date: Date): boolean {
     if (date < today) return false;
+    if (date >= maxDate) return false;
     const slots = getAvailableSlots(date);
     return slots.length > 0;
   }
@@ -252,7 +262,8 @@ export default function ReservationCalendarPage() {
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={prevMonth}
-                className="p-2 hover:bg-gray-100 transition-colors"
+                disabled={!canGoPrev}
+                className="p-2 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 aria-label="前の月"
               >
                 <ChevronLeft size={20} />
@@ -262,7 +273,8 @@ export default function ReservationCalendarPage() {
               </h2>
               <button
                 onClick={nextMonth}
-                className="p-2 hover:bg-gray-100 transition-colors"
+                disabled={!canGoNext}
+                className="p-2 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 aria-label="次の月"
               >
                 <ChevronRight size={20} />
@@ -316,7 +328,7 @@ export default function ReservationCalendarPage() {
               })}
             </div>
             <p className="mt-4 text-xs text-gray-500">
-              ※グレーの日付は予約不可です。
+              ※グレーの日付は予約不可です。2ヶ月先まで予約できます。
             </p>
           </div>
         )}
