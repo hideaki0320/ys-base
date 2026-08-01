@@ -274,7 +274,7 @@ export default function AdminPage() {
   }, {});
 
   const stats = {
-    total: reservations.length,
+    active: reservations.filter((r) => r.status !== "cancelled").length,
     confirmed: reservations.filter((r) => r.status === "confirmed").length,
     pending: reservations.filter((r) => r.status === "pending").length,
     cancelled: reservations.filter((r) => r.status === "cancelled").length,
@@ -389,10 +389,10 @@ export default function AdminPage() {
         {tab === "reservations" && (
           <>
             {/* Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
               <div className="bg-white p-4 border border-gray-200 rounded-sm">
-                <p className="text-xs text-gray-500 mb-1">総予約数</p>
-                <p className="text-2xl font-black text-gray-900">{stats.total}</p>
+                <p className="text-xs text-gray-500 mb-1">有効予約数</p>
+                <p className="text-2xl font-black text-gray-900">{stats.active}</p>
               </div>
               <div className="bg-white p-4 border border-gray-200 rounded-sm">
                 <p className="text-xs text-gray-500 mb-1">確定</p>
@@ -401,6 +401,10 @@ export default function AdminPage() {
               <div className="bg-white p-4 border border-gray-200 rounded-sm">
                 <p className="text-xs text-gray-500 mb-1">未決済</p>
                 <p className="text-2xl font-black text-yellow-700">{stats.pending}</p>
+              </div>
+              <div className="bg-white p-4 border border-gray-200 rounded-sm">
+                <p className="text-xs text-gray-500 mb-1">キャンセル</p>
+                <p className="text-2xl font-black text-red-500">{stats.cancelled}</p>
               </div>
               <div className="bg-white p-4 border border-gray-200 rounded-sm">
                 <p className="text-xs text-gray-500 mb-1">売上合計</p>
