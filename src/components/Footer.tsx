@@ -93,8 +93,31 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Legal */}
+          <div className="md:col-span-1">
+            <h4 className="text-[11px] font-bold text-white/40 tracking-[0.2em] mb-5 uppercase">
+              Legal
+            </h4>
+            <ul className="space-y-2.5">
+              {[
+                { href: "/terms", label: "利用規約" },
+                { href: "/tokushoho", label: "特商法表記" },
+                { href: "/privacy", label: "プライバシー" },
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="text-sm text-white/60 hover:text-white transition-colors inline-flex items-center gap-1"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Info */}
-          <div className="md:col-span-4">
+          <div className="md:col-span-3">
             <h4 className="text-[11px] font-bold text-white/40 tracking-[0.2em] mb-5 uppercase">
               Information
             </h4>
