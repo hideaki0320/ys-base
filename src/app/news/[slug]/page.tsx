@@ -91,8 +91,10 @@ export default async function NewsArticlePage({ params }: { params: Params }) {
           <div className="bg-white border border-gray-200 p-6 sm:p-10">
             {article.body ? (
               <div
-                className="prose prose-sm max-w-none prose-headings:text-primary prose-a:text-accent"
-                dangerouslySetInnerHTML={{ __html: article.body.replace(/\n/g, "<br />") }}
+                className="prose prose-sm max-w-none prose-headings:text-primary prose-a:text-accent prose-img:rounded prose-img:max-w-full"
+                dangerouslySetInnerHTML={{
+                  __html: article.body.includes("<") ? article.body : article.body.replace(/\n/g, "<br />"),
+                }}
               />
             ) : article.excerpt ? (
               <p className="text-gray-700 leading-relaxed">{article.excerpt}</p>

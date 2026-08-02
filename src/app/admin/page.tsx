@@ -24,6 +24,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
+import { RichEditor } from "@/components/RichEditor";
 
 /* ─── types ─── */
 
@@ -1107,7 +1108,7 @@ export default function AdminPage() {
                 <h3 className="text-sm font-black text-gray-900 mb-4">
                   {editingNews ? "お知らせを編集" : "新規お知らせ"}
                 </h3>
-                <div className="space-y-4 max-w-2xl">
+                <div className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-600 mb-1">タイトル <span className="text-red-500">*</span></label>
                     <input
@@ -1164,12 +1165,10 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-600 mb-1">本文</label>
-                    <textarea
+                    <RichEditor
                       value={newsForm.body}
-                      onChange={(e) => setNewsForm((f) => ({ ...f, body: e.target.value }))}
-                      rows={8}
-                      className="w-full border border-gray-300 px-3 py-2 text-sm rounded-sm resize-vertical font-mono"
-                      placeholder="お知らせの本文を入力（改行はそのまま反映されます）"
+                      onChange={(html) => setNewsForm((f) => ({ ...f, body: html }))}
+                      apiKey={apiKey}
                     />
                   </div>
                   <div>
