@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ChevronDown, MapPin, Clock, Car } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
 
 const menuCards = [
   {
@@ -29,28 +30,29 @@ const menuCards = [
   },
 ];
 
-const newsItems = [
-  {
-    date: "2026.07.30",
-    category: "お知らせ",
-    title: "YS-BASE ホームページを公開しました",
-    slug: "website-launch",
-  },
-  {
-    date: "2026.07.25",
-    category: "予約",
-    title: "8月の予約受付を開始しました",
-    slug: "august-reservations",
-  },
-  {
-    date: "2026.07.15",
-    category: "お知らせ",
-    title: "施設利用規約を更新しました",
-    slug: "terms-update",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function Home() {
+async function getLatestNews() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!
+  );
+  const { data } = await supabase
+    .from("ysbase_news")
+    .select("id, title, slug, category, published_at")
+    .eq("published", true)
+    .order("published_at", { ascending: false })
+    .limit(5);
+  return data || [];
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export default async function Home() {
+  const newsItems = await getLatestNews();
   return (
     <>
       {/* ─── Hero ─── */}
@@ -245,14 +247,16 @@ export default function Home() {
               </h2>
             </div>
             <div className="space-y-0 divide-y divide-gray-200">
-              {newsItems.map((item) => (
+              {newsItems.length === 0 ? (
+                <p className="py-8 text-center text-gray-400 text-sm">お知らせはまだありません。</p>
+              ) : newsItems.map((item) => (
                 <Link
-                  key={item.slug}
+                  key={item.id}
                   href={`/news/${item.slug}`}
                   className="flex items-start sm:items-center gap-3 sm:gap-5 py-5 group hover:bg-white px-5 -mx-5 transition-colors rounded-sm"
                 >
                   <time className="text-xs text-gray-400 shrink-0 tabular-nums font-medium pt-0.5 sm:pt-0">
-                    {item.date}
+                    {item.published_at ? formatDate(item.published_at) : ""}
                   </time>
                   <span className="text-[10px] font-bold text-accent bg-accent/10 px-2 py-0.5 shrink-0 rounded-sm">
                     {item.category}
