@@ -21,6 +21,7 @@ import {
   Unlock,
   X,
   MessageSquare,
+  Trash2,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
 
@@ -93,6 +94,7 @@ export default function AdminPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   /* ═══ AVAILABILITY STATE ═══ */
   const [availMonth, setAvailMonth] = useState(() => {
@@ -228,6 +230,27 @@ export default function AdminPage() {
         alert("キャンセル完了。");
       }
       setCancellingId(null);
+      fetchReservations();
+    } catch {
+      alert("通信エラーが発生しました");
+    }
+  }
+
+  /* ─── delete handler ─── */
+
+  async function handleDelete(reservationId: string) {
+    try {
+      const res = await fetch("/api/admin/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({ reservationId }),
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        alert("エラー: " + (result.error || "削除に失敗しました"));
+        return;
+      }
+      setDeletingId(null);
       fetchReservations();
     } catch {
       alert("通信エラーが発生しました");
@@ -580,7 +603,7 @@ export default function AdminPage() {
                                   {r.stripe_payment_intent_id && <div><span className="text-gray-500 text-xs">Stripe Payment ID</span><p className="font-mono text-xs text-gray-600 break-all">{r.stripe_payment_intent_id}</p></div>}
                                   <div><span className="text-gray-500 text-xs">予約登録日時</span><p className="font-medium text-gray-800">{new Date(r.created_at).toLocaleString("ja-JP")}</p></div>
                                 </div>
-                                {r.status !== "cancelled" && (
+                                {r.status !== "cancelled" ? (
                                   <div className="border-t border-gray-200 pt-4">
                                     {isCancelling ? (
                                       <div className="bg-red-50 border border-red-200 rounded-sm p-4">
@@ -600,6 +623,25 @@ export default function AdminPage() {
                                     ) : (
                                       <button onClick={() => setCancellingId(r.id)} className="text-red-600 hover:text-red-700 text-sm font-bold flex items-center gap-1.5 transition-colors">
                                         <Ban size={14} />キャンセル
+                                      </button>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="border-t border-gray-200 pt-4">
+                                    {deletingId === r.id ? (
+                                      <div className="bg-red-50 border border-red-200 rounded-sm p-4">
+                                        <p className="text-sm font-bold text-red-800 mb-3">この予約データを完全に削除しますか？</p>
+                                        <p className="text-xs text-gray-500 mb-4">この操作は取り消せません。</p>
+                                        <div className="flex gap-2">
+                                          <button onClick={() => handleDelete(r.id)} className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 text-sm rounded-sm transition-colors flex items-center gap-1.5">
+                                            <Trash2 size={14} />削除する
+                                          </button>
+                                          <button onClick={() => setDeletingId(null)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-4 py-2 text-sm rounded-sm transition-colors">やめる</button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <button onClick={() => setDeletingId(r.id)} className="text-gray-400 hover:text-red-600 text-sm font-bold flex items-center gap-1.5 transition-colors">
+                                        <Trash2 size={14} />削除
                                       </button>
                                     )}
                                   </div>
