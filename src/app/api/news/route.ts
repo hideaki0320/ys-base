@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabase
     .from("ysbase_news")
-    .select("id, title, slug, category, excerpt, published_at")
+    .select("id, title, slug, category, excerpt, thumbnail_url, published_at")
     .eq("published", true)
     .order("published_at", { ascending: false });
 

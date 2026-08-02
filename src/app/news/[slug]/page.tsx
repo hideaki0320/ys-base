@@ -13,6 +13,7 @@ interface NewsArticle {
   category: string;
   excerpt: string | null;
   body: string | null;
+  thumbnail_url: string | null;
   published_at: string;
 }
 
@@ -48,6 +49,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     openGraph: {
       title: `${article.title} | YS-BASE`,
       description: article.excerpt || `${article.title} - YS-BASEからのお知らせ`,
+      ...(article.thumbnail_url ? { images: [{ url: article.thumbnail_url }] } : {}),
     },
   };
 }
@@ -87,6 +89,14 @@ export default async function NewsArticlePage({ params }: { params: Params }) {
           <h1 className="text-2xl sm:text-3xl font-black text-primary mb-8 leading-tight">
             {article.title}
           </h1>
+
+          {article.thumbnail_url && (
+            <img
+              src={article.thumbnail_url}
+              alt={article.title}
+              className="w-full aspect-[2/1] object-cover rounded-sm mb-8"
+            />
+          )}
 
           <div className="bg-white border border-gray-200 p-6 sm:p-10">
             {article.body ? (

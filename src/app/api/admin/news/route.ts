@@ -37,12 +37,13 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { title, slug, category, excerpt, body: newsBody, published } = body as {
+  const { title, slug, category, excerpt, body: newsBody, thumbnail_url, published } = body as {
     title: string;
     slug: string;
     category: string;
     excerpt?: string;
     body?: string;
+    thumbnail_url?: string;
     published: boolean;
   };
 
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
     category: category || "お知らせ",
     excerpt: excerpt || null,
     body: newsBody || null,
+    thumbnail_url: thumbnail_url || null,
     published,
   };
 
@@ -82,13 +84,14 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { id, title, slug, category, excerpt, body: newsBody, published } = body as {
+  const { id, title, slug, category, excerpt, body: newsBody, thumbnail_url, published } = body as {
     id: string;
     title: string;
     slug: string;
     category: string;
     excerpt?: string;
     body?: string;
+    thumbnail_url?: string;
     published: boolean;
   };
 
@@ -110,6 +113,7 @@ export async function PUT(request: Request) {
     category: category || "お知らせ",
     excerpt: excerpt || null,
     body: newsBody || null,
+    thumbnail_url: thumbnail_url || null,
     published,
   };
 

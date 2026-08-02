@@ -21,6 +21,7 @@ interface NewsItem {
   slug: string;
   category: string;
   excerpt: string | null;
+  thumbnail_url: string | null;
   published_at: string;
 }
 
@@ -32,7 +33,7 @@ async function getNews(): Promise<NewsItem[]> {
 
   const { data, error } = await supabase
     .from("ysbase_news")
-    .select("id, title, slug, category, excerpt, published_at")
+    .select("id, title, slug, category, excerpt, thumbnail_url, published_at")
     .eq("published", true)
     .order("published_at", { ascending: false });
 
@@ -72,17 +73,26 @@ export default async function NewsPage() {
                       {item.category}
                     </span>
                   </div>
-                  <Link href={`/news/${item.slug}`} className="group">
-                    <h2 className="text-base font-bold text-gray-800 group-hover:text-primary transition-colors mb-2">
-                      {item.title}
-                    </h2>
-                    {item.excerpt && (
-                      <p className="text-[13px] text-gray-500 leading-relaxed mb-3">{item.excerpt}</p>
+                  <Link href={`/news/${item.slug}`} className="group flex gap-5">
+                    {item.thumbnail_url && (
+                      <img
+                        src={item.thumbnail_url}
+                        alt=""
+                        className="w-32 h-20 sm:w-40 sm:h-24 object-cover rounded-sm flex-shrink-0 mt-0.5"
+                      />
                     )}
-                    <span className="inline-flex items-center gap-1 text-accent text-[13px] font-medium group-hover:gap-2 transition-all">
-                      続きを読む
-                      <ChevronRight size={14} />
-                    </span>
+                    <div className="min-w-0 flex-1">
+                      <h2 className="text-base font-bold text-gray-800 group-hover:text-primary transition-colors mb-2">
+                        {item.title}
+                      </h2>
+                      {item.excerpt && (
+                        <p className="text-[13px] text-gray-500 leading-relaxed mb-3">{item.excerpt}</p>
+                      )}
+                      <span className="inline-flex items-center gap-1 text-accent text-[13px] font-medium group-hover:gap-2 transition-all">
+                        続きを読む
+                        <ChevronRight size={14} />
+                      </span>
+                    </div>
                   </Link>
                 </article>
               ))}

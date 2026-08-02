@@ -22,6 +22,7 @@ import {
   X,
   MessageSquare,
   Trash2,
+  ImagePlus,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
 import { RichEditor } from "@/components/RichEditor";
@@ -81,6 +82,7 @@ interface NewsItem {
   category: string;
   excerpt: string | null;
   body: string | null;
+  thumbnail_url: string | null;
   published: boolean;
   published_at: string | null;
   created_at: string;
@@ -131,7 +133,7 @@ export default function AdminPage() {
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [newsLoading, setNewsLoading] = useState(false);
   const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
-  const [newsForm, setNewsForm] = useState({ title: "", slug: "", category: "お知らせ", excerpt: "", body: "", published: false });
+  const [newsForm, setNewsForm] = useState({ title: "", slug: "", category: "お知らせ", excerpt: "", body: "", thumbnail_url: "", published: false });
   const [showNewsForm, setShowNewsForm] = useState(false);
   const [newsSaving, setNewsSaving] = useState(false);
   const [deletingNewsId, setDeletingNewsId] = useState<string | null>(null);
@@ -256,10 +258,10 @@ export default function AdminPage() {
   function openNewsForm(item?: NewsItem) {
     if (item) {
       setEditingNews(item);
-      setNewsForm({ title: item.title, slug: item.slug, category: item.category, excerpt: item.excerpt || "", body: item.body || "", published: item.published });
+      setNewsForm({ title: item.title, slug: item.slug, category: item.category, excerpt: item.excerpt || "", body: item.body || "", thumbnail_url: item.thumbnail_url || "", published: item.published });
     } else {
       setEditingNews(null);
-      setNewsForm({ title: "", slug: "", category: "お知らせ", excerpt: "", body: "", published: false });
+      setNewsForm({ title: "", slug: "", category: "お知らせ", excerpt: "", body: "", thumbnail_url: "", published: false });
     }
     setShowNewsForm(true);
   }
@@ -1154,6 +1156,74 @@ export default function AdminPage() {
                     </select>
                   </div>
                   <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">サムネイル画像</label>
+                    {newsForm.thumbnail_url ? (
+                      <div className="flex items-start gap-4">
+                        <img src={newsForm.thumbnail_url} alt="" className="w-40 h-24 object-cover rounded-sm border border-gray-200" />
+                        <div className="flex flex-col gap-2">
+                          <label className="text-xs text-blue-600 hover:text-blue-700 font-bold cursor-pointer">
+                            変更する
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const formData = new FormData();
+                                formData.append("file", file);
+                                const res = await fetch("/api/admin/upload", {
+                                  method: "POST",
+                                  headers: { Authorization: `Bearer ${apiKey}` },
+                                  body: formData,
+                                });
+                                const result = await res.json();
+                                if (res.ok) setNewsForm((f) => ({ ...f, thumbnail_url: result.url }));
+                                else alert("アップロード失敗: " + (result.error || ""));
+                                e.target.value = "";
+                              }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setNewsForm((f) => ({ ...f, thumbnail_url: "" }))}
+                            className="text-xs text-gray-400 hover:text-red-500 font-bold text-left"
+                          >
+                            削除する
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-sm cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors">
+                        <div className="text-center">
+                          <ImagePlus size={20} className="mx-auto text-gray-400 mb-1" />
+                          <span className="text-xs text-gray-400">クリックして画像を選択</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            const res = await fetch("/api/admin/upload", {
+                              method: "POST",
+                              headers: { Authorization: `Bearer ${apiKey}` },
+                              body: formData,
+                            });
+                            const result = await res.json();
+                            if (res.ok) setNewsForm((f) => ({ ...f, thumbnail_url: result.url }));
+                            else alert("アップロード失敗: " + (result.error || ""));
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    )}
+                    <p className="text-[11px] text-gray-400 mt-1">一覧ページに表示されるサムネイル画像（任意）</p>
+                  </div>
+                  <div>
                     <label className="block text-xs font-bold text-gray-600 mb-1">概要（一覧に表示される文章）</label>
                     <textarea
                       value={newsForm.excerpt}
@@ -1212,6 +1282,9 @@ export default function AdminPage() {
                 {newsList.map((n) => (
                   <div key={n.id} className="bg-white border border-gray-200 rounded-sm p-4">
                     <div className="flex items-start justify-between gap-4">
+                      {n.thumbnail_url && (
+                        <img src={n.thumbnail_url} alt="" className="w-20 h-14 object-cover rounded-sm border border-gray-200 flex-shrink-0" />
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1.5">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm ${
