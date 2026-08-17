@@ -76,20 +76,24 @@ export async function POST(request: Request) {
   console.log("[webhook] Event verified:", event.type, event.id);
   const supabase = getSupabase();
 
-  const { error: dupError } = await supabase
-    .from("processed_stripe_events")
-    .insert({ event_id: event.id });
-  if (dupError) {
-    console.error("[webhook] processed_stripe_events insert error:", JSON.stringify(dupError));
-    return NextResponse.json({ received: true });
-  }
-
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const meta = session.metadata || {};
     console.log("[webhook] checkout.session.completed, metadata:", JSON.stringify(meta));
 
     if (meta.date && meta.slots) {
+      const { error: dupError } = await supabase
+        .from("processed_stripe_events")
+        .insert({ event_id: `ysbase:${event.id}` });
+      if (dupError) {
+        if (dupError.code === "23505") {
+          console.log("[webhook] Already processed:", event.id);
+          return NextResponse.json({ received: true });
+        }
+        console.error("[webhook] processed_stripe_events insert error:", JSON.stringify(dupError));
+        return NextResponse.json({ error: "DB error" }, { status: 500 });
+      }
+
       const slots: number[] = JSON.parse(meta.slots);
       const reservationDate = new Date(meta.date + "T00:00:00");
 
