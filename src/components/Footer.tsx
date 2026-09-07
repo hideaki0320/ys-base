@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Phone, Mail, ChevronRight } from "lucide-react";
+import { MapPin, Phone, ChevronRight } from "lucide-react";
 
 const menuLinks = [
   { href: "/facility", label: "施設概要" },
@@ -61,14 +61,8 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone size={14} className="shrink-0 text-accent/60" />
-                <a href="tel:045-000-0000" className="hover:text-white transition-colors">
-                  045-000-0000
-                </a>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Mail size={14} className="shrink-0 text-accent/60" />
-                <a href="mailto:info@ys-base.jp" className="hover:text-white transition-colors">
-                  info@ys-base.jp
+                <a href="tel:045-621-8760" className="hover:text-white transition-colors">
+                  045-621-8760
                 </a>
               </div>
             </div>

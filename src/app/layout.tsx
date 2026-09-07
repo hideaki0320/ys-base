@@ -85,8 +85,7 @@ export default function RootLayout({
     name: "YS-BASE",
     description: SITE_DESCRIPTION,
     url: SITE_URL,
-    telephone: "045-000-0000",
-    email: "info@ys-base.jp",
+    telephone: "045-621-8760",
     address: {
       "@type": "PostalAddress",
       streetAddress: "下瀬谷1丁目41-4",

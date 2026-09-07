@@ -115,8 +115,7 @@ export default function PrivacyPage() {
             <p>個人情報の取扱いに関するお問い合わせは、以下までご連絡ください。</p>
             <div className="bg-gray-50 p-5 rounded-sm border border-gray-100 mt-3">
               <p className="font-medium text-primary">Y.S.C.C.横浜（YS-BASE 運営事務局）</p>
-              <p className="mt-1">メール：info@ys-base.jp</p>
-              <p>電話：045-000-0000（平日 10:00〜17:00）</p>
+              <p className="mt-1">電話：045-621-8760（平日 10:00〜17:00）</p>
             </div>
           </Section>
 
