@@ -76,18 +76,33 @@ export async function POST(request: Request) {
   console.log("[webhook] Event verified:", event.type, event.id);
   const supabase = getSupabase();
 
-  if (event.type === "checkout.session.completed") {
+  // PayPay 等の非同期決済では completed が payment_status=unpaid で先に届き、
+  // 後から async_payment_succeeded が来る。どちらのイベントでも「支払済み」の時だけ予約を確定する。
+  if (
+    event.type === "checkout.session.completed" ||
+    event.type === "checkout.session.async_payment_succeeded"
+  ) {
     const session = event.data.object as Stripe.Checkout.Session;
     const meta = session.metadata || {};
-    console.log("[webhook] checkout.session.completed, metadata:", JSON.stringify(meta));
+    console.log("[webhook]", event.type, {
+      session: session.id,
+      payment_status: session.payment_status,
+      date: meta.date,
+      slots: meta.slots,
+    });
+
+    if (session.payment_status !== "paid") {
+      console.log("[webhook] payment not completed yet, skipping:", session.payment_status);
+      return NextResponse.json({ received: true });
+    }
 
     if (meta.date && meta.slots) {
       const { error: dupError } = await supabase
         .from("processed_stripe_events")
-        .insert({ event_id: `ysbase:${event.id}` });
+        .insert({ event_id: `ysbase:${session.id}` });
       if (dupError) {
         if (dupError.code === "23505") {
-          console.log("[webhook] Already processed:", event.id);
+          console.log("[webhook] Already processed:", session.id);
           return NextResponse.json({ received: true });
         }
         console.error("[webhook] processed_stripe_events insert error:", JSON.stringify(dupError));
@@ -139,6 +154,11 @@ export async function POST(request: Request) {
     } else {
       console.log("[webhook] Missing metadata (date/slots)");
     }
+  }
+
+  if (event.type === "checkout.session.async_payment_failed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log("[webhook] async payment failed, no reservation created:", session.id);
   }
 
   return NextResponse.json({ received: true });

@@ -9,7 +9,7 @@ function getSupabase() {
 }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const MONTH_RE = /^\d{4}-\d{2}$/;
+const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -41,6 +41,9 @@ export async function GET(request: Request) {
 
   if (reservationsResult.error) {
     return NextResponse.json({ error: reservationsResult.error.message }, { status: 500 });
+  }
+  if (availabilityResult.error) {
+    return NextResponse.json({ error: availabilityResult.error.message }, { status: 500 });
   }
 
   const bookedSlots = reservationsResult.data.map((r) => r.slot_hour);
@@ -80,6 +83,9 @@ async function getMonthStatus(month: string) {
 
   if (reservationsResult.error) {
     return NextResponse.json({ error: reservationsResult.error.message }, { status: 500 });
+  }
+  if (availabilityResult.error) {
+    return NextResponse.json({ error: availabilityResult.error.message }, { status: 500 });
   }
 
   const unavailable: Record<string, number[]> = {};

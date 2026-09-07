@@ -13,6 +13,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { date, slots, customerName, customerEmail, customerPhone, address, purpose, notes } = body;
 
+    if (!Array.isArray(slots) || slots.length === 0 || !slots.every((h) => Number.isInteger(h))) {
+      return NextResponse.json({ error: "slots required" }, { status: 400 });
+    }
+
     const reservationDate = new Date(date + "T00:00:00");
     const serverTotal = (slots as number[]).reduce((sum: number, hour: number) => {
       const p = getPrice(reservationDate, hour);
