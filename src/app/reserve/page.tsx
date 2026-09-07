@@ -5,7 +5,7 @@ import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "予約方法",
-  description: "YS-BASEのコート予約方法。オンラインで空き状況確認・予約・クレジットカード決済が可能。予約手順、注意事項、キャンセルポリシー。",
+  description: "YS-BASEのコート予約方法。オンラインで空き状況確認・予約・決済（クレジットカード・PayPay）が可能。予約手順、注意事項、キャンセルポリシー。",
   openGraph: {
     title: "予約方法 | YS-BASE",
     description: "オンラインで空き状況確認・予約・決済が完結。予約手順とキャンセルポリシー。",
@@ -31,7 +31,7 @@ const steps = [
   {
     num: "4",
     title: "利用料のお支払い",
-    description: "メールの案内に沿って利用料をお支払いください（クレジットカード決済対応）。",
+    description: "メールの案内に沿って利用料をお支払いください（クレジットカード・PayPay対応）。",
   },
   {
     num: "5",

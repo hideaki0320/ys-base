@@ -13,10 +13,19 @@ import {
   MapPin,
   Target,
   CreditCard,
+  Ban,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
 
 type Step = "date" | "slots" | "form" | "confirm";
+
+/** ローカル日付を YYYY-MM-DD にする（toISOString は UTC 変換で日付がずれるため使わない） */
+function toDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
 
 interface ReservationData {
   date: Date | null;
@@ -49,6 +58,7 @@ export default function ReservationCalendarPage() {
   const [completed, setCompleted] = useState(false);
   const [bookedSlots, setBookedSlots] = useState<number[]>([]);
   const [closedSlots, setClosedSlots] = useState<number[]>([]);
+  const [monthUnavailable, setMonthUnavailable] = useState<Record<string, number[]>>({});
 
   const today = useMemo(() => {
     const d = new Date();
@@ -63,7 +73,7 @@ export default function ReservationCalendarPage() {
   }, [today]);
 
   const fetchSlotStatus = useCallback(async (date: Date) => {
-    const dateStr = date.toISOString().split("T")[0];
+    const dateStr = toDateKey(date);
     try {
       const res = await fetch(`/api/reservations?date=${dateStr}`);
       const json = await res.json();
@@ -81,6 +91,23 @@ export default function ReservationCalendarPage() {
     }
   }, [data.date, fetchSlotStatus]);
 
+  // 表示中の月の予約済み・休止枡を取得（満枠日をグレーアウトする）
+  useEffect(() => {
+    const monthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
+    let cancelled = false;
+    fetch(`/api/reservations?month=${monthKey}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (!cancelled) setMonthUnavailable(json.unavailable || {});
+      })
+      .catch(() => {
+        if (!cancelled) setMonthUnavailable({});
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentMonth]);
+
   const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -95,12 +122,20 @@ export default function ReservationCalendarPage() {
     return days;
   }, [currentMonth]);
 
-  const availableSlots = useMemo(() => {
+  // 営業枡すべて（予約済み・休止は unavailable フラグ付きでグレーアウト表示する）
+  const daySlots = useMemo(() => {
     if (!data.date) return [];
-    return getAvailableSlots(data.date).filter(
-      (s) => !bookedSlots.includes(s.hour) && !closedSlots.includes(s.hour)
-    );
+    return getAvailableSlots(data.date).map((s) => ({
+      ...s,
+      booked: bookedSlots.includes(s.hour),
+      closed: closedSlots.includes(s.hour),
+    }));
   }, [data.date, bookedSlots, closedSlots]);
+
+  const availableSlots = useMemo(
+    () => daySlots.filter((s) => !s.booked && !s.closed),
+    [daySlots]
+  );
 
   const totalPrice = useMemo(() => {
     return availableSlots
@@ -132,11 +167,20 @@ export default function ReservationCalendarPage() {
     }));
   }
 
+  function isFullyBooked(date: Date): boolean {
+    const slots = getAvailableSlots(date);
+    if (slots.length === 0) return false;
+    const unavailable = monthUnavailable[toDateKey(date)];
+    if (!unavailable) return false;
+    return slots.every((s) => unavailable.includes(s.hour));
+  }
+
   function isDateSelectable(date: Date): boolean {
     if (date < today) return false;
     if (date >= maxDate) return false;
     const slots = getAvailableSlots(date);
-    return slots.length > 0;
+    if (slots.length === 0) return false;
+    return !isFullyBooked(date);
   }
 
   async function handleSubmit() {
@@ -146,7 +190,7 @@ export default function ReservationCalendarPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          date: data.date!.toISOString().split("T")[0],
+          date: toDateKey(data.date!),
           slots: data.selectedSlots,
           customerName: data.name,
           customerEmail: data.email,
@@ -294,6 +338,7 @@ export default function ReservationCalendarPage() {
               {calendarDays.map((date, i) => {
                 if (!date) return <div key={`empty-${i}`} />;
                 const selectable = isDateSelectable(date);
+                const fullyBooked = !selectable && date >= today && date < maxDate && isFullyBooked(date);
                 const isToday =
                   date.toDateString() === today.toDateString();
                 const isSelected =
@@ -302,7 +347,7 @@ export default function ReservationCalendarPage() {
 
                 return (
                   <button
-                    key={date.toISOString()}
+                    key={toDateKey(date)}
                     disabled={!selectable}
                     onClick={() => selectDate(date)}
                     className={`py-3 text-sm transition-colors relative ${
@@ -310,7 +355,9 @@ export default function ReservationCalendarPage() {
                         ? "bg-accent text-primary font-bold"
                         : selectable
                           ? "hover:bg-accent/10 cursor-pointer"
-                          : "text-gray-300 cursor-not-allowed"
+                          : fullyBooked
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed line-through decoration-gray-300"
+                            : "text-gray-300 cursor-not-allowed"
                     } ${
                       selectable && dayOfWeek === 0
                         ? "text-red-500"
@@ -327,9 +374,17 @@ export default function ReservationCalendarPage() {
                 );
               })}
             </div>
-            <p className="mt-4 text-xs text-gray-500">
-              ※グレーの日付は予約不可です。2ヶ月先まで予約できます。
-            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-gray-500">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block w-3.5 h-3.5 bg-gray-100 border border-gray-200" />
+                予約済み（満枠）
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block w-3.5 h-3.5 border border-gray-200 text-gray-300 text-[9px] leading-[13px] text-center">-</span>
+                予約不可・営業日外
+              </span>
+            </div>
+            <p className="mt-2 text-xs text-gray-500">※2ヶ月先まで予約できます。</p>
           </div>
         )}
 
@@ -358,8 +413,28 @@ export default function ReservationCalendarPage() {
               利用する時間帯を選択してください（複数選択可）。
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {availableSlots.map((slot) => {
+              {daySlots.map((slot) => {
                 const isSelected = data.selectedSlots.includes(slot.hour);
+                const unavailable = slot.booked || slot.closed;
+                if (unavailable) {
+                  return (
+                    <div
+                      key={slot.hour}
+                      aria-disabled="true"
+                      className="flex items-center justify-between p-4 border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed select-none"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Ban size={16} className="text-gray-300" />
+                        <span className="font-medium line-through decoration-gray-300">
+                          {formatTimeSlot(slot.hour)}
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold tracking-wide">
+                        {slot.booked ? "予約済み" : "予約停止"}
+                      </span>
+                    </div>
+                  );
+                }
                 return (
                   <button
                     key={slot.hour}
@@ -381,6 +456,11 @@ export default function ReservationCalendarPage() {
                 );
               })}
             </div>
+            {availableSlots.length === 0 && (
+              <p className="mt-4 text-sm text-gray-500">
+                この日は全ての時間帯が予約済みです。別の日をお選びください。
+              </p>
+            )}
             {data.selectedSlots.length > 0 && (
               <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-6">
                 <div>

@@ -23,7 +23,7 @@ const rows: [string, React.ReactNode][] = [
     </>,
   ],
   ["販売価格以外の必要料金", "なし（ナイター照明費は利用料金に含まれます）"],
-  ["支払方法", "クレジットカード決済（Visa、Mastercard、JCB、American Express、Diners Club）"],
+  ["支払方法", "クレジットカード決済（Visa、Mastercard、JCB、American Express、Diners Club）、PayPay"],
   ["支払時期", "予約申込み時にお支払いいただきます。"],
   [
     "役務の提供時期",

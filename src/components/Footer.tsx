@@ -129,7 +129,7 @@ export function Footer() {
               </div>
               <div>
                 <p className="text-white/80 font-medium mb-1">駐車場</p>
-                <p>38台（砂利敷・無料）</p>
+                <p>30台（砂利敷・無料）</p>
               </div>
             </div>
           </div>

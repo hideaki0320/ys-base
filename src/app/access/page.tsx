@@ -4,10 +4,10 @@ import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "アクセス",
-  description: "YS-BASEへのアクセス方法。横浜市瀬谷区下瀬谷1丁目41-4、環状4号線沿い。駐車場38台（無料）完備。相鉄線「瀬谷」駅からバス・タクシー。",
+  description: "YS-BASEへのアクセス方法。横浜市瀬谷区下瀬谷1丁目41-4、環状4号線沿い。駐車場30台（無料）完備。相鉄線「瀬谷」駅からバス・タクシー。",
   openGraph: {
     title: "アクセス | YS-BASE",
-    description: "環状4号線沿い、駐車場38台無料完備。相鉄線「瀬谷」駅からバス・タクシー。",
+    description: "環状4号線沿い、駐車場30台無料完備。相鉄線「瀬谷」駅からバス・タクシー。",
   },
 };
 
@@ -74,7 +74,7 @@ export default function AccessPage() {
                   <div>
                     <h3 className="font-bold text-primary text-sm mb-1">お車でお越しの場合</h3>
                     <p className="text-sm text-gray-600">
-                      環状4号線沿い<br />駐車場：38台（砂利敷・無料）
+                      環状4号線沿い<br />駐車場：30台（砂利敷・無料）
                     </p>
                   </div>
                 </div>

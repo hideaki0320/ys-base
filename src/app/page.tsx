@@ -163,7 +163,7 @@ export default async function Home() {
               </p>
               <p className="text-gray-600 leading-[1.9] text-[15px] mb-8">
                 メインコートとサブコートを備え、試合や練習、イベントなど、さまざまな用途でお使いいただけます。
-                38台分の駐車場も完備しています。
+                30台分の駐車場も完備しています。
               </p>
               <Link
                 href="/facility"
@@ -227,7 +227,7 @@ export default async function Home() {
               <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
                 <Image src="/images/parking_img.png" alt="YS-BASE 無料駐車場" fill className="object-cover" />
               </div>
-              <h3 className="text-lg font-bold text-primary mb-2">38台の無料駐車場</h3>
+              <h3 className="text-lg font-bold text-primary mb-2">30台の無料駐車場</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
                 環状4号線沿いの好立地。大型車両も駐車可能な広い駐車スペースを無料でご利用いただけます。
               </p>
@@ -318,7 +318,7 @@ export default async function Home() {
                 </div>
                 <div>
                   <h3 className="font-bold text-primary text-sm mb-1">駐車場</h3>
-                  <p className="text-sm text-gray-600">38台（砂利敷・無料）</p>
+                  <p className="text-sm text-gray-600">30台（砂利敷・無料）</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">

@@ -116,7 +116,7 @@ export default function RootLayout({
     ],
     amenityFeature: [
       { "@type": "LocationFeatureSpecification", name: "天然芝コート", value: true },
-      { "@type": "LocationFeatureSpecification", name: "無料駐車場（38台）", value: true },
+      { "@type": "LocationFeatureSpecification", name: "無料駐車場（30台）", value: true },
       { "@type": "LocationFeatureSpecification", name: "ナイター照明", value: true },
     ],
     image: `${SITE_URL}/images/hero_img.png`,
