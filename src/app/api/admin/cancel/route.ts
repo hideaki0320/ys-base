@@ -93,14 +93,24 @@ export async function POST(request: Request) {
           { status: 409 }
         );
       }
-      if (charge && slotAmount > charge.amount - refundedSoFar) {
+      // 同じ決済で有効な枠がこの1枠だけなら、割引按分の端数ずれを吸収するため残額すべてを返金する
+      let refundAmount = slotAmount;
+      if (charge && reservation.stripe_session_id) {
+        const { count: activeCount } = await supabase
+          .from("ysbase_reservations")
+          .select("id", { count: "exact", head: true })
+          .eq("stripe_session_id", reservation.stripe_session_id)
+          .neq("status", "cancelled");
+        if (activeCount === 1) refundAmount = charge.amount - refundedSoFar;
+      }
+      if (charge && refundAmount > charge.amount - refundedSoFar) {
         return NextResponse.json({ error: "返金額が決済の残額を超えるため返金できません。Stripe の画面で確認してください" }, { status: 409 });
       }
-      if (slotAmount <= 0) {
+      if (refundAmount <= 0) {
         return NextResponse.json({ error: "この枠の支払額が 0 円のため返金できません。「返金なしでキャンセル」を使ってください" }, { status: 400 });
       }
       const refundObj = await stripe.refunds.create(
-        { payment_intent: reservation.stripe_payment_intent_id, amount: slotAmount },
+        { payment_intent: reservation.stripe_payment_intent_id, amount: refundAmount },
         { idempotencyKey: `ysbase-admin-cancel-${reservationId}` }
       );
       if (refundObj.status === "failed" || refundObj.status === "canceled") {

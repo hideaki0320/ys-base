@@ -146,8 +146,23 @@ export async function POST(request: Request) {
     const paymentIntent = rows[0].stripe_payment_intent_id as string | null;
     if (paymentIntent) {
       try {
+        // 同じ決済に「返金なしでキャンセル」した枠（キャンセル料として保持）があれば、
+        // その分まで返金しないよう、今回の対象枠の支払額だけを返金する。無ければ残額すべてを返金する
+        const { count: keptCount } = await supabase
+          .from("ysbase_reservations")
+          .select("id", { count: "exact", head: true })
+          .eq("stripe_session_id", sessionId)
+          .eq("cancel_reason", "管理画面キャンセル（返金なし）");
+        const targetAmount = rows.reduce(
+          (sum, r) => sum + (r.total_price ?? 0) - (r.discount_amount ?? 0),
+          0
+        );
         const refund = await stripe.refunds.create(
-          { payment_intent: paymentIntent, reason: "requested_by_customer" },
+          {
+            payment_intent: paymentIntent,
+            reason: "requested_by_customer",
+            ...((keptCount ?? 0) > 0 ? { amount: targetAmount } : {}),
+          },
           { idempotencyKey: `ysbase-rain-${sessionId}` }
         );
         if (refund.status === "failed" || refund.status === "canceled") {
