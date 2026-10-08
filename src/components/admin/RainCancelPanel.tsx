@@ -115,7 +115,8 @@ export function RainCancelPanel({ apiKey }: { apiKey: string }) {
       setBookings(grouped);
       setLoadedDate(target);
       setLoadedAt(Date.now());
-      const ids = grouped.filter((b) => b.status === "confirmed").map((b) => b.sessionId);
+      // 決済（Stripe セッション）の無い予約は自動返金できないので、初期選択から外す
+      const ids = grouped.filter((b) => b.status === "confirmed" && !b.sessionId.startsWith("no-session-")).map((b) => b.sessionId);
       setSelected(new Set(ids));
       setMailTargets(new Set(ids));
       setStep("select");
@@ -236,6 +237,7 @@ export function RainCancelPanel({ apiKey }: { apiKey: string }) {
                         type="checkbox"
                         checked={selected.has(b.sessionId)}
                         onChange={() => toggle(selected, setSelected, b.sessionId)}
+                        disabled={b.sessionId.startsWith("no-session-")}
                         className="mt-1"
                       />
                       <div className="flex-1 min-w-0">
@@ -246,6 +248,9 @@ export function RainCancelPanel({ apiKey }: { apiKey: string }) {
                         <p className="text-xs text-gray-600 mt-0.5">
                           {b.rows.map((r) => formatTimeSlot(r.slot_hour)).join("、")}
                         </p>
+                        {b.sessionId.startsWith("no-session-") && (
+                          <p className="text-xs text-amber-700 mt-0.5">オンライン決済の無い予約のため、ここでは返金できません。予約一覧から個別に対応してください</p>
+                        )}
                       </div>
                       <span className="text-sm font-bold text-gray-900 tabular-nums">{formatPrice(b.amount)}</span>
                     </label>

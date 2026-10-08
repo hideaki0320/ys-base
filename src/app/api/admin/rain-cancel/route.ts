@@ -95,11 +95,26 @@ export async function POST(request: Request) {
   if (sendMailEnabled && (!mail?.subject?.trim() || !mail?.body?.trim())) {
     return NextResponse.json({ error: "メールの件名と本文を入力してください" }, { status: 400 });
   }
+  if (sessionIds.length > 50 || sessionIds.some((s) => typeof s !== "string" || !s.startsWith("cs_"))) {
+    return NextResponse.json({ error: "sessionIds が不正です（1回50件まで）" }, { status: 400 });
+  }
   const mailTargets = new Set(mail?.sessionIds || []);
 
   const supabase = getSupabase();
   const stripe = getStripe();
   const results: SessionResult[] = [];
+
+  // 0. 先に全枠を停止する（キャンセル処理中に空いた枠へ新しい予約が入らないように）
+  let slotsClosed = false;
+  let slotsError: string | null = null;
+  if (closeAllSlots) {
+    const { error } = await supabase.from("ysbase_slot_availability").upsert(
+      ALL_HOURS.map((slot_hour) => ({ date, slot_hour, is_available: false, reason: REASON })),
+      { onConflict: "date,slot_hour" }
+    );
+    if (error) slotsError = error.message;
+    else slotsClosed = true;
+  }
 
   for (const sessionId of sessionIds) {
     const result: SessionResult = {
@@ -135,6 +150,10 @@ export async function POST(request: Request) {
           { payment_intent: paymentIntent, reason: "requested_by_customer" },
           { idempotencyKey: `ysbase-rain-${sessionId}` }
         );
+        if (refund.status === "failed" || refund.status === "canceled") {
+          result.error = `返金が ${refund.status} になったためキャンセルしていません。Stripe で確認してください`;
+          continue;
+        }
         refundId = refund.id;
         result.refunded = true;
         result.refundAmount = refund.amount;
@@ -186,20 +205,15 @@ export async function POST(request: Request) {
       } else {
         result.error = `キャンセル・返金は完了しましたが、メールの予約に失敗しました: ${sent.error}`;
       }
-      await supabase.from("ysbase_reservations").update(mailUpdate).eq("stripe_session_id", sessionId);
+      const { error: mailUpdateError } = await supabase
+        .from("ysbase_reservations")
+        .update(mailUpdate)
+        .eq("stripe_session_id", sessionId)
+        .eq("reservation_date", date);
+      if (mailUpdateError) {
+        result.error = `メールの送信予約は完了しましたが、記録に失敗しました（この画面からは取り消せません）: ${mailUpdateError.message}`;
+      }
     }
-  }
-
-  // 4. その日の全枠を予約停止
-  let slotsClosed = false;
-  let slotsError: string | null = null;
-  if (closeAllSlots) {
-    const { error } = await supabase.from("ysbase_slot_availability").upsert(
-      ALL_HOURS.map((slot_hour) => ({ date, slot_hour, is_available: false, reason: REASON })),
-      { onConflict: "date,slot_hour" }
-    );
-    if (error) slotsError = error.message;
-    else slotsClosed = true;
   }
 
   return NextResponse.json({ results, slotsClosed, slotsError });

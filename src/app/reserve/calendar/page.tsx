@@ -16,7 +16,7 @@ import {
   Ban,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
-import { maxDateKeyJST, BOOKING_WINDOW_LABEL } from "@/lib/booking-window";
+import { todayKeyJST, maxDateKeyJST, BOOKING_WINDOW_LABEL } from "@/lib/booking-window";
 import { EXIT_NOTICE } from "@/lib/booking-notice";
 
 type Step = "date" | "slots" | "form" | "confirm";
@@ -61,10 +61,10 @@ export default function ReservationCalendarPage() {
   const [closedSlots, setClosedSlots] = useState<number[]>([]);
   const [monthUnavailable, setMonthUnavailable] = useState<Record<string, number[]>>({});
 
+  // 日本時間の今日（海外のブラウザでも予約可能期間がずれないように）
   const today = useMemo(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
+    const [y, m, d] = todayKeyJST().split("-").map(Number);
+    return new Date(y, m - 1, d);
   }, []);
 
   // 予約できる最終日の翌日 0:00（この日付以降は選べない）

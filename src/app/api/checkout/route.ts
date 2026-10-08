@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { createClient } from "@supabase/supabase-js";
 import { getPrice } from "@/lib/pricing";
 import { isWithinBookingWindow } from "@/lib/booking-window";
 
@@ -34,6 +35,23 @@ export async function POST(request: Request) {
       if (p === null) throw new Error(`invalid slot: ${hour}`);
       return sum + p;
     }, 0);
+
+    // 停止中・予約済みの枠は決済画面を作らない（画面を開いたまま時間が経った場合など）
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
+    const [closed, booked] = await Promise.all([
+      supabase.from("ysbase_slot_availability").select("slot_hour").eq("date", date).eq("is_available", false).in("slot_hour", slots),
+      supabase.from("ysbase_reservations").select("slot_hour").eq("reservation_date", date).in("status", ["pending", "confirmed"]).in("slot_hour", slots),
+    ]);
+    if (closed.error || booked.error) {
+      console.error("[checkout] availability check failed:", closed.error?.message, booked.error?.message);
+      return NextResponse.json({ error: "空き状況を確認できませんでした。時間をおいて再度お試しください" }, { status: 500 });
+    }
+    if ((closed.data?.length ?? 0) > 0 || (booked.data?.length ?? 0) > 0) {
+      return NextResponse.json(
+        { error: "選択した時間帯はご予約いただけなくなりました。お手数ですが、日時を選び直してください" },
+        { status: 409 }
+      );
+    }
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
