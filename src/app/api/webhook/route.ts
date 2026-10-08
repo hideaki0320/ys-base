@@ -152,8 +152,17 @@ export async function POST(request: Request) {
         console.error("[webhook] Insert failed:", insertError);
       } else {
         console.log("[webhook] Reservations created:", reservations.length);
-        await sendConfirmation(supabase, session.id, reservations);
-        await notifyAdmin(session.id, reservations);
+        // メール送信の失敗で webhook を 500 にしない（予約は確定済み。500 だと Stripe が再送してくる）
+        try {
+          await sendConfirmation(supabase, session.id, reservations);
+        } catch (e) {
+          console.error("[webhook] confirmation mail threw:", e);
+        }
+        try {
+          await notifyAdmin(session.id, reservations);
+        } catch (e) {
+          console.error("[webhook] admin notify threw:", e);
+        }
       }
     } else {
       console.log("[webhook] Missing metadata (date/slots)");

@@ -35,6 +35,8 @@ export async function sendMail(input: {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers,
+      // Stripe webhook の応答を遅らせない（タイムアウトはエラーとして返す）
+      signal: AbortSignal.timeout(5000),
       body: JSON.stringify({
         from,
         to: input.to,
@@ -63,6 +65,7 @@ export async function cancelMail(id: string): Promise<{ ok: boolean; error?: str
     const res = await fetch(`https://api.resend.com/emails/${encodeURIComponent(id)}/cancel`, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) {
       return { ok: false, error: `Resend ${res.status}: ${(await res.text()).slice(0, 300)}` };
