@@ -1,4 +1,4 @@
-# Resend 送信設定手順（ys-base@yscc1986.net から送るために）
+# Resend 送信設定手順（ysbase@yscc1986.net から送るために）
 
 作成日: 2026-09-07
 対象: YS-BASE（Railway サービス `ys-base`、本番 https://ys-base.yscc1986.net ）
@@ -72,11 +72,11 @@ Railway ダッシュボード → プロジェクト `ys-base` → サービス 
 
 ```
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-MAIL_FROM=YS-BASE <ys-base@yscc1986.net>
-MAIL_REPLY_TO=ys-base@yscc1986.net
+MAIL_FROM=YS-BASE <ysbase@yscc1986.net>
+MAIL_REPLY_TO=ysbase@yscc1986.net
 ```
 
-- `MAIL_FROM` の表示名は自由（例: `YS-BASE 予約センター`）。アドレス部分は `ys-base@yscc1986.net` 固定
+- `MAIL_FROM` の表示名は自由（例: `YS-BASE 予約センター`）。アドレス部分は `ysbase@yscc1986.net` 固定
 - 追加後に Redeploy が走る。稼働確認は https://ys-base.yscc1986.net/facility が 200 で返ることで確認
 - preview 環境を作る場合は同じ 3 変数を入れる（テスト送信先を自分のアドレスに限定する運用にする）
 
@@ -91,9 +91,9 @@ curl -s https://api.resend.com/emails \
   -H "Authorization: Bearer re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
-    "from": "YS-BASE <ys-base@yscc1986.net>",
+    "from": "YS-BASE <ysbase@yscc1986.net>",
     "to": ["hideaki.nakamori@gmail.com"],
-    "reply_to": "ys-base@yscc1986.net",
+    "reply_to": "ysbase@yscc1986.net",
     "subject": "[テスト] YS-BASE 送信確認",
     "text": "YS-BASE の Resend 送信テストです。"
   }'
@@ -116,7 +116,7 @@ DMARC: PASS
 ## 6. 返信が届くかの確認（メールボックス発行後）
 
 制作会社の作業（`01_制作会社向け_メールアドレス発行指示書.md`）が完了したら、
-手順 5 のテストメールに **返信** して、`ys-base@yscc1986.net` の受信担当者に届くことを確認する。
+手順 5 のテストメールに **返信** して、`ysbase@yscc1986.net` の受信担当者に届くことを確認する。
 これが通るまで、サイトにメールアドレスを掲載しない（返信が宛先不明で跳ねるため）。
 
 ---
@@ -149,7 +149,7 @@ RESEND_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxx
 
 外部依存（実装前チェックリスト）
 
-- [ ] ys-base@yscc1986.net が受信できる（制作会社作業）
+- [ ] ysbase@yscc1986.net が受信できる（制作会社作業）
 - [ ] Resend で yscc1986.net が Verified
 - [ ] Railway に RESEND_API_KEY / MAIL_FROM / MAIL_REPLY_TO
 - [ ] テスト 1 通で SPF / DKIM / DMARC = PASS
