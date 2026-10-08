@@ -411,6 +411,15 @@ export default function AdminPage() {
   /* ─── cancel handler ─── */
 
   async function handleCancel(reservationId: string, doRefund: boolean) {
+    if (
+      !confirm(
+        doRefund
+          ? "この予約をキャンセルし、Stripe で決済の残額をすべて返金します。返金は取り消せません。よろしいですか？"
+          : "この予約を返金なしでキャンセルします（Stripe での返金は行いません）。よろしいですか？"
+      )
+    ) {
+      return;
+    }
     try {
       const res = await fetch("/api/admin/cancel", {
         method: "POST",
@@ -424,8 +433,10 @@ export default function AdminPage() {
       }
       if (result.refund) {
         alert(`キャンセル完了。返金処理を実行しました（¥${result.refund.amount.toLocaleString()}）`);
+      } else if (result.alreadyRefunded) {
+        alert("キャンセル完了。この決済は既に全額返金済みのため、追加の返金はしていません。");
       } else {
-        alert("キャンセル完了。");
+        alert("キャンセル完了（返金なし）。");
       }
       setCancellingId(null);
       fetchReservations();
@@ -813,14 +824,36 @@ export default function AdminPage() {
                                     {isCancelling ? (
                                       <div className="bg-red-50 border border-red-200 rounded-sm p-4">
                                         <p className="text-sm font-bold text-red-800 mb-3">この予約をキャンセルしますか？</p>
-                                        {r.stripe_payment_intent_id && (
-                                          <p className="text-sm text-gray-600 mb-4 flex items-center gap-1.5">
-                                            <Undo2 size={14} className="text-blue-600" />Stripe経由で全額返金されます
-                                          </p>
-                                        )}
-                                        <div className="flex gap-2">
-                                          <button onClick={() => handleCancel(r.id, !!r.stripe_payment_intent_id)} className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 text-sm rounded-sm transition-colors flex items-center gap-1.5">
-                                            <Ban size={14} />キャンセル
+                                        {r.stripe_payment_intent_id && (() => {
+                                          const sameSession = reservations.filter(
+                                            (x) => x.stripe_session_id && x.stripe_session_id === r.stripe_session_id && x.status !== "cancelled"
+                                          ).length;
+                                          return (
+                                            <div className="text-xs text-gray-700 mb-4 space-y-1.5 leading-relaxed">
+                                              <p className="flex items-start gap-1.5">
+                                                <Undo2 size={14} className="text-blue-600 shrink-0 mt-0.5" />
+                                                <span><strong>全額返金してキャンセル</strong>：Stripe で決済の残額をすべて返金します（8日前まで・施設都合の中止など）。</span>
+                                              </p>
+                                              <p className="flex items-start gap-1.5">
+                                                <Ban size={14} className="text-gray-500 shrink-0 mt-0.5" />
+                                                <span><strong>返金なしでキャンセル</strong>：予約だけ取り消して枠を空けます。50%返金は先に Stripe の画面で行ってから、こちらを押してください。</span>
+                                              </p>
+                                              {sameSession > 1 && (
+                                                <p className="text-amber-700">
+                                                  この決済には {sameSession} 枠が含まれています。全額返金すると、他の枠の分も含めて返金されます。
+                                                </p>
+                                              )}
+                                            </div>
+                                          );
+                                        })()}
+                                        <div className="flex flex-wrap gap-2">
+                                          {r.stripe_payment_intent_id && (
+                                            <button onClick={() => handleCancel(r.id, true)} className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 text-sm rounded-sm transition-colors flex items-center gap-1.5">
+                                              <Undo2 size={14} />全額返金してキャンセル
+                                            </button>
+                                          )}
+                                          <button onClick={() => handleCancel(r.id, false)} className="border border-red-300 text-red-700 hover:bg-red-100 font-bold px-4 py-2 text-sm rounded-sm transition-colors flex items-center gap-1.5">
+                                            <Ban size={14} />返金なしでキャンセル
                                           </button>
                                           <button onClick={() => setCancellingId(null)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-4 py-2 text-sm rounded-sm transition-colors">やめる</button>
                                         </div>

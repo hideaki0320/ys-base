@@ -49,36 +49,61 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Already cancelled" }, { status: 400 });
   }
 
-  let refundResult = null;
+  let refundResult: { id: string; amount: number; status: string | null } | null = null;
+  let alreadyRefunded = false;
 
-  if (refund && reservation.stripe_payment_intent_id) {
+  // 金額を指定しないので、決済の残額すべてを返金する（同じ決済の他の枠の分も含む）
+  if (refund === true && reservation.stripe_payment_intent_id) {
     try {
       const stripe = getStripe();
-      const refundObj = await stripe.refunds.create({
-        payment_intent: reservation.stripe_payment_intent_id,
-      });
+      const refundObj = await stripe.refunds.create(
+        { payment_intent: reservation.stripe_payment_intent_id },
+        { idempotencyKey: `ysbase-admin-cancel-${reservationId}` }
+      );
+      if (refundObj.status === "failed" || refundObj.status === "canceled") {
+        return NextResponse.json(
+          { error: `返金が ${refundObj.status} になったためキャンセルしていません。Stripe で確認してください` },
+          { status: 500 }
+        );
+      }
       refundResult = {
         id: refundObj.id,
         amount: refundObj.amount,
         status: refundObj.status,
       };
     } catch (err) {
-      console.error("[admin/cancel] Stripe refund failed:", err);
-      return NextResponse.json(
-        { error: "Stripe refund failed: " + (err instanceof Error ? err.message : "unknown") },
-        { status: 500 }
-      );
+      if ((err as { code?: string }).code === "charge_already_refunded") {
+        alreadyRefunded = true;
+      } else {
+        console.error("[admin/cancel] Stripe refund failed:", err);
+        return NextResponse.json(
+          { error: "Stripe refund failed: " + (err instanceof Error ? err.message : "unknown") },
+          { status: 500 }
+        );
+      }
     }
   }
 
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from("ysbase_reservations")
-    .update({ status: "cancelled" })
-    .eq("id", reservationId);
+    .update({
+      status: "cancelled",
+      cancel_reason: refund === true ? "管理画面キャンセル（全額返金）" : "管理画面キャンセル（返金なし）",
+      refund_id: refundResult?.id ?? null,
+    })
+    .eq("id", reservationId)
+    .select("id");
 
-  if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
+  if (updateError || !updated?.length) {
+    return NextResponse.json(
+      {
+        error:
+          (refundResult ? "返金は完了しましたが、" : "") +
+          `予約のキャンセル更新に失敗しました: ${updateError?.message || "0件"}`,
+      },
+      { status: 500 }
+    );
   }
 
-  return NextResponse.json({ ok: true, refund: refundResult });
+  return NextResponse.json({ ok: true, refund: refundResult, alreadyRefunded });
 }
