@@ -414,7 +414,7 @@ export default function AdminPage() {
     if (
       !confirm(
         doRefund
-          ? "この予約をキャンセルし、Stripe で決済の残額をすべて返金します。返金は取り消せません。よろしいですか？"
+          ? "この予約をキャンセルし、この枠の支払額を Stripe で返金します。返金は取り消せません。よろしいですか？"
           : "この予約を返金なしでキャンセルします（Stripe での返金は行いません）。よろしいですか？"
       )
     ) {
@@ -832,7 +832,7 @@ export default function AdminPage() {
                                             <div className="text-xs text-gray-700 mb-4 space-y-1.5 leading-relaxed">
                                               <p className="flex items-start gap-1.5">
                                                 <Undo2 size={14} className="text-blue-600 shrink-0 mt-0.5" />
-                                                <span><strong>全額返金してキャンセル</strong>：Stripe で決済の残額をすべて返金します（8日前まで・施設都合の中止など）。</span>
+                                                <span><strong>全額返金してキャンセル</strong>：この枠の支払額を Stripe で返金します（8日前まで・施設都合の中止など）。Stripe で一部返金済みの決済には使えません。</span>
                                               </p>
                                               <p className="flex items-start gap-1.5">
                                                 <Ban size={14} className="text-gray-500 shrink-0 mt-0.5" />
@@ -840,7 +840,7 @@ export default function AdminPage() {
                                               </p>
                                               {sameSession > 1 && (
                                                 <p className="text-amber-700">
-                                                  この決済には {sameSession} 枠が含まれています。全額返金すると、他の枠の分も含めて返金されます。
+                                                  この決済には {sameSession} 枠が含まれています。返金されるのはこの枠の分だけです。
                                                 </p>
                                               )}
                                             </div>

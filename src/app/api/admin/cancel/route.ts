@@ -23,7 +23,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json();
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+  }
   const { reservationId, refund } = body as {
     reservationId: string;
     refund: boolean;
@@ -52,12 +55,52 @@ export async function POST(request: Request) {
   let refundResult: { id: string; amount: number; status: string | null } | null = null;
   let alreadyRefunded = false;
 
-  // 金額を指定しないので、決済の残額すべてを返金する（同じ決済の他の枠の分も含む）
+  // この枠の支払額（利用料金 - 割引）だけを返金する。同じ決済の他の枠には影響させない
   if (refund === true && reservation.stripe_payment_intent_id) {
+    const slotAmount = (reservation.total_price ?? 0) - (reservation.discount_amount ?? 0);
     try {
       const stripe = getStripe();
+      // Stripe 画面で一部返金済みの決済は、ここから返金すると金額がずれるので受け付けない
+      const pi = await stripe.paymentIntents.retrieve(reservation.stripe_payment_intent_id, {
+        expand: ["latest_charge"],
+      });
+      const charge = pi.latest_charge as Stripe.Charge | null;
+      const refundedSoFar = charge?.amount_refunded ?? 0;
+
+      // この画面から返金した分（同じ決済の他の枠）の合計。これと Stripe の返金済み額が違えば、
+      // Stripe の画面で手動返金されているので、二重返金を避けるため受け付けない
+      let refundedByAdmin = 0;
+      if (reservation.stripe_session_id) {
+        const { data: siblings, error: siblingsError } = await supabase
+          .from("ysbase_reservations")
+          .select("total_price, discount_amount")
+          .eq("stripe_session_id", reservation.stripe_session_id)
+          .eq("cancel_reason", "管理画面キャンセル（全額返金）")
+          .not("refund_id", "is", null);
+        if (siblingsError) {
+          return NextResponse.json({ error: "返金履歴を確認できませんでした" }, { status: 500 });
+        }
+        refundedByAdmin = (siblings || []).reduce(
+          (sum, r) => sum + (r.total_price ?? 0) - (r.discount_amount ?? 0),
+          0
+        );
+      }
+      if (refundedSoFar !== refundedByAdmin) {
+        return NextResponse.json(
+          {
+            error: `この決済は Stripe の画面で ¥${(refundedSoFar - refundedByAdmin).toLocaleString()} 返金されています。二重返金を避けるため、ここからは返金できません。必要なら「返金なしでキャンセル」を使ってください`,
+          },
+          { status: 409 }
+        );
+      }
+      if (charge && slotAmount > charge.amount - refundedSoFar) {
+        return NextResponse.json({ error: "返金額が決済の残額を超えるため返金できません。Stripe の画面で確認してください" }, { status: 409 });
+      }
+      if (slotAmount <= 0) {
+        return NextResponse.json({ error: "この枠の支払額が 0 円のため返金できません。「返金なしでキャンセル」を使ってください" }, { status: 400 });
+      }
       const refundObj = await stripe.refunds.create(
-        { payment_intent: reservation.stripe_payment_intent_id },
+        { payment_intent: reservation.stripe_payment_intent_id, amount: slotAmount },
         { idempotencyKey: `ysbase-admin-cancel-${reservationId}` }
       );
       if (refundObj.status === "failed" || refundObj.status === "canceled") {
@@ -77,7 +120,7 @@ export async function POST(request: Request) {
       } else {
         console.error("[admin/cancel] Stripe refund failed:", err);
         return NextResponse.json(
-          { error: "Stripe refund failed: " + (err instanceof Error ? err.message : "unknown") },
+          { error: "Stripe での返金に失敗したため、キャンセルしていません。Stripe の画面で決済の状態を確認してください" },
           { status: 500 }
         );
       }
@@ -92,6 +135,7 @@ export async function POST(request: Request) {
       refund_id: refundResult?.id ?? null,
     })
     .eq("id", reservationId)
+    .neq("status", "cancelled")
     .select("id");
 
   if (updateError || !updated?.length) {
