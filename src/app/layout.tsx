@@ -58,6 +58,9 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: ["/opengraph-image.png"],
   },
+  verification: {
+    google: "3n-xikxwMKdTUsWsCJQrP-MC2g2_xwSx_73tC75uZA8",
+  },
   robots: {
     index: true,
     follow: true,
