@@ -6,6 +6,16 @@ import { SITE_URL } from "@/lib/site";
 export const revalidate = 3600;
 
 async function getNewsEntries(): Promise<MetadataRoute.Sitemap> {
+  try {
+    return await fetchNewsEntries();
+  } catch (e) {
+    // 取得に失敗しても固定ページだけの sitemap は返す
+    console.error("[sitemap] news fetch threw:", e);
+    return [];
+  }
+}
+
+async function fetchNewsEntries(): Promise<MetadataRoute.Sitemap> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
