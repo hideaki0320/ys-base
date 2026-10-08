@@ -229,6 +229,63 @@ export default function FacilityPage() {
         </div>
       </section>
 
+      {/* ─── Night ─── */}
+      <section className="py-16 sm:py-24 bg-primary-dark text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            <div className="lg:col-span-5 order-2 lg:order-1">
+              <p className="text-accent text-[10px] tracking-[0.3em] font-medium mb-3 uppercase">Night</p>
+              <h2 className="text-2xl sm:text-3xl font-black mb-6">ナイター照明</h2>
+              <p className="text-white/75 leading-[1.9] text-[15px] mb-8">
+                夜間照明を備え、平日・土日祝とも21:00までご利用いただけます。
+                照明費は利用料金に含まれているため、追加料金はかかりません。
+                仕事終わりや学校帰りの練習にもご活用ください。
+              </p>
+              <dl className="divide-y divide-white/15 border-y border-white/15 text-sm">
+                <div className="flex items-baseline justify-between gap-4 py-3.5">
+                  <dt className="text-white/60">ナイター利用時間</dt>
+                  <dd className="font-bold tabular-nums">18:00〜21:00</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-4 py-3.5">
+                  <dt className="text-white/60">照明費</dt>
+                  <dd className="font-bold">利用料金に含む</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="lg:col-span-7 order-1 lg:order-2 grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="relative col-span-3 aspect-[16/10] overflow-hidden rounded-sm">
+                <Image
+                  src="/images/facility/night-wide.jpg"
+                  alt="YS-BASE ナイター照明に照らされた夜の天然芝コート"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="relative col-span-2 aspect-[4/3] overflow-hidden rounded-sm">
+                <Image
+                  src="/images/facility/night-net.jpg"
+                  alt="YS-BASE 照明と防球ネットに囲まれた夜のフィールド"
+                  fill
+                  sizes="(max-width: 1024px) 66vw, 38vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="relative overflow-hidden rounded-sm">
+                <Image
+                  src="/images/facility/night-grass.jpg"
+                  alt="YS-BASE ナイター照明の下の天然芝"
+                  fill
+                  sizes="(max-width: 1024px) 33vw, 19vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Amenities ─── */}
       <section className="py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
