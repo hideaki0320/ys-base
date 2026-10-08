@@ -253,7 +253,7 @@ export default async function Home() {
                 <Link
                   key={item.id}
                   href={`/news/${item.slug}`}
-                  className="flex items-start sm:items-center gap-3 sm:gap-5 py-5 group hover:bg-white px-5 -mx-5 transition-colors rounded-sm"
+                  className="flex items-start sm:items-center gap-3 sm:gap-5 py-5 group hover:bg-white px-4 -mx-4 sm:px-5 sm:-mx-5 transition-colors rounded-sm"
                 >
                   <time className="text-xs text-gray-400 shrink-0 tabular-nums font-medium pt-0.5 sm:pt-0">
                     {item.published_at ? formatDate(item.published_at) : ""}
