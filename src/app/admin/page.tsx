@@ -23,6 +23,9 @@ import {
   MessageSquare,
   Trash2,
   ImagePlus,
+  Mail,
+  Phone,
+  AlertTriangle,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
 import { RichEditor } from "@/components/RichEditor";
@@ -46,6 +49,38 @@ interface Reservation {
   stripe_payment_intent_id: string | null;
   status: string;
   created_at: string;
+}
+
+interface Inquiry {
+  id: string;
+  name: string;
+  org: string | null;
+  email: string;
+  phone: string | null;
+  category: string;
+  message: string;
+  status: "new" | "done";
+  notified_at: string | null;
+  notify_error: string | null;
+  created_at: string;
+}
+
+const INQUIRY_CATEGORY_LABELS: Record<string, string> = {
+  reservation: "予約について",
+  facility: "施設について",
+  event: "イベント利用について",
+  other: "その他",
+};
+
+function formatDateTimeJP(iso: string) {
+  return new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(iso));
 }
 
 interface SlotClosure {
@@ -89,7 +124,7 @@ interface NewsItem {
   updated_at: string;
 }
 
-type Tab = "reservations" | "availability" | "news";
+type Tab = "reservations" | "availability" | "news" | "inquiries";
 
 export default function AdminPage() {
   const [apiKey, setApiKey] = useState(() => {
@@ -137,6 +172,13 @@ export default function AdminPage() {
   const [showNewsForm, setShowNewsForm] = useState(false);
   const [newsSaving, setNewsSaving] = useState(false);
   const [deletingNewsId, setDeletingNewsId] = useState<string | null>(null);
+
+  // Inquiries state
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [inquiriesLoading, setInquiriesLoading] = useState(false);
+  const [inquiryFilter, setInquiryFilter] = useState<"all" | "new" | "done">("new");
+  const [expandedInquiryId, setExpandedInquiryId] = useState<string | null>(null);
+  const [updatingInquiryId, setUpdatingInquiryId] = useState<string | null>(null);
 
   const todayDate = useMemo(() => {
     const d = new Date();
@@ -254,6 +296,43 @@ export default function AdminPage() {
   useEffect(() => {
     if (authenticated && tab === "news") fetchNews();
   }, [authenticated, tab, fetchNews]);
+
+  const fetchInquiries = useCallback(async () => {
+    setInquiriesLoading(true);
+    try {
+      const res = await fetch("/api/admin/inquiries", {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setInquiries(data || []);
+    } catch {
+      alert("お問い合わせの取得に失敗しました");
+    } finally {
+      setInquiriesLoading(false);
+    }
+  }, [apiKey]);
+
+  useEffect(() => {
+    if (authenticated && tab === "inquiries") fetchInquiries();
+  }, [authenticated, tab, fetchInquiries]);
+
+  async function updateInquiryStatus(id: string, status: "new" | "done") {
+    setUpdatingInquiryId(id);
+    try {
+      const res = await fetch("/api/admin/inquiries", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({ id, status }),
+      });
+      if (!res.ok) throw new Error();
+      setInquiries((list) => list.map((q) => (q.id === id ? { ...q, status } : q)));
+    } catch {
+      alert("更新に失敗しました");
+    } finally {
+      setUpdatingInquiryId(null);
+    }
+  }
 
   function openNewsForm(item?: NewsItem) {
     if (item) {
@@ -580,16 +659,16 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <h1 className="text-lg font-black text-gray-900">YS-BASE 管理画面</h1>
           <button
-            onClick={() => tab === "reservations" ? fetchReservations() : tab === "availability" ? fetchAvailability() : fetchNews()}
-            disabled={loading || availLoading || newsLoading}
+            onClick={() => tab === "reservations" ? fetchReservations() : tab === "availability" ? fetchAvailability() : tab === "news" ? fetchNews() : fetchInquiries()}
+            disabled={loading || availLoading || newsLoading || inquiriesLoading}
             className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
           >
-            <RefreshCw size={16} className={loading || availLoading || newsLoading ? "animate-spin" : ""} />
+            <RefreshCw size={16} className={loading || availLoading || newsLoading || inquiriesLoading ? "animate-spin" : ""} />
             更新
           </button>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-0 border-t border-gray-100">
-          {(["reservations", "availability", "news"] as const).map((t) => (
+          {(["reservations", "availability", "news", "inquiries"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -597,7 +676,12 @@ export default function AdminPage() {
                 tab === t ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
-              {t === "reservations" ? "予約一覧" : t === "availability" ? "スロット管理" : "お知らせ"}
+              {t === "reservations" ? "予約一覧" : t === "availability" ? "スロット管理" : t === "news" ? "お知らせ" : "お問い合わせ"}
+              {t === "inquiries" && inquiries.some((q) => q.status === "new") && (
+                <span className="ml-1.5 inline-block min-w-[18px] px-1 text-[11px] leading-[18px] rounded-full bg-red-500 text-white text-center">
+                  {inquiries.filter((q) => q.status === "new").length}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -1341,6 +1425,111 @@ export default function AdminPage() {
                 ))}
               </div>
             )}
+          </>
+        )}
+
+        {/* ════════════════ TAB: お問い合わせ ════════════════ */}
+        {tab === "inquiries" && (
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-lg font-black text-gray-900">お問い合わせ</h2>
+              <div className="flex border border-gray-300 rounded-sm overflow-hidden bg-white">
+                {(["new", "done", "all"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setInquiryFilter(f)}
+                    className={`px-4 py-1.5 text-xs font-bold transition-colors ${
+                      inquiryFilter === f ? "bg-gray-900 text-white" : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {f === "new" ? "未対応" : f === "done" ? "対応済み" : "すべて"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {inquiriesLoading ? (
+              <p className="text-sm text-gray-500 py-12 text-center">読み込み中...</p>
+            ) : (() => {
+              const list = inquiries.filter((q) => inquiryFilter === "all" || q.status === inquiryFilter);
+              if (list.length === 0) {
+                return <p className="text-sm text-gray-500 py-12 text-center">該当するお問い合わせはありません</p>;
+              }
+              return (
+                <div className="bg-white border border-gray-200 rounded-sm divide-y divide-gray-100">
+                  {list.map((q) => {
+                    const expanded = expandedInquiryId === q.id;
+                    return (
+                      <div key={q.id}>
+                        <button
+                          onClick={() => setExpandedInquiryId(expanded ? null : q.id)}
+                          className="w-full text-left px-4 sm:px-5 py-4 hover:bg-gray-50 transition-colors flex items-start gap-3"
+                        >
+                          <span
+                            className={`shrink-0 mt-0.5 text-[11px] font-bold px-2 py-0.5 border rounded-sm ${
+                              q.status === "new"
+                                ? "text-red-700 bg-red-50 border-red-200"
+                                : "text-gray-500 bg-gray-50 border-gray-200"
+                            }`}
+                          >
+                            {q.status === "new" ? "未対応" : "対応済み"}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                              <span className="text-sm font-bold text-gray-900">{q.name}</span>
+                              {q.org && <span className="text-xs text-gray-500">{q.org}</span>}
+                              <span className="text-xs text-gray-400">{INQUIRY_CATEGORY_LABELS[q.category] || q.category}</span>
+                            </div>
+                            <p className={`text-xs text-gray-600 mt-1 ${expanded ? "" : "line-clamp-1"}`}>
+                              {expanded ? "" : q.message}
+                            </p>
+                          </div>
+                          <span className="shrink-0 text-xs text-gray-400 tabular-nums">{formatDateTimeJP(q.created_at)}</span>
+                          {expanded ? <ChevronUp size={16} className="shrink-0 text-gray-400" /> : <ChevronDown size={16} className="shrink-0 text-gray-400" />}
+                        </button>
+
+                        {expanded && (
+                          <div className="px-4 sm:px-5 pb-5 pt-1 border-t border-gray-100 bg-gray-50/50">
+                            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm py-3">
+                              <div className="flex items-center gap-2">
+                                <Mail size={14} className="text-gray-400" />
+                                <a href={`mailto:${q.email}`} className="text-blue-600 hover:underline break-all">{q.email}</a>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Phone size={14} className="text-gray-400" />
+                                {q.phone ? <a href={`tel:${q.phone}`} className="text-blue-600 hover:underline">{q.phone}</a> : <span className="text-gray-400">未入力</span>}
+                              </div>
+                            </dl>
+                            <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed bg-white border border-gray-200 rounded-sm p-4">
+                              {q.message}
+                            </p>
+                            {q.notify_error && (
+                              <p className="mt-3 flex items-start gap-1.5 text-xs text-amber-700">
+                                <AlertTriangle size={14} className="shrink-0 mt-0.5" />
+                                通知メールは送信されていません（{q.notify_error}）
+                              </p>
+                            )}
+                            <div className="mt-4 flex justify-end">
+                              <button
+                                onClick={() => updateInquiryStatus(q.id, q.status === "new" ? "done" : "new")}
+                                disabled={updatingInquiryId === q.id}
+                                className={`text-xs font-bold px-4 py-2 rounded-sm transition-colors disabled:opacity-50 ${
+                                  q.status === "new"
+                                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                    : "border border-gray-300 text-gray-600 hover:bg-white"
+                                }`}
+                              >
+                                {q.status === "new" ? "対応済みにする" : "未対応に戻す"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </>
         )}
       </div>

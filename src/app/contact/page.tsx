@@ -1,11 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (sending) return;
+    setSending(true);
+    setError("");
+    const fd = new FormData(e.currentTarget);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(fd.entries())),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "送信に失敗しました。時間をおいて再度お試しください");
+        return;
+      }
+      setSubmitted(true);
+      window.scrollTo({ top: 0 });
+    } catch {
+      setError("通信に失敗しました。電波の良い場所で再度お試しください");
+    } finally {
+      setSending(false);
+    }
+  }
 
   if (submitted) {
     return (
@@ -43,13 +71,13 @@ export default function ContactPage() {
             通常2〜3営業日以内にご返信いたします。
           </p>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSubmitted(true);
-            }}
-            className="space-y-5"
-          >
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* スパム対策の入力欄（人には表示しない） */}
+            <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
+              <label htmlFor="website">Website</label>
+              <input type="text" id="website" name="website" tabIndex={-1} autoComplete="off" />
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label htmlFor="name" className="block text-[13px] font-bold text-primary mb-2">
@@ -133,13 +161,20 @@ export default function ContactPage() {
               />
             </div>
 
+            {error && (
+              <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-100 px-4 py-3 rounded-sm">
+                {error}
+              </p>
+            )}
+
             <div className="text-center pt-4">
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-dark text-primary-dark font-bold px-10 py-3.5 text-sm transition-all rounded-sm"
+                disabled={sending}
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-dark text-primary-dark font-bold px-10 py-3.5 text-sm transition-all rounded-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <Send size={16} />
-                送信する
+                {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                {sending ? "送信中..." : "送信する"}
               </button>
             </div>
           </form>
