@@ -3,6 +3,7 @@ import { MapPin, Car, Clock, Train } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/access" },
   title: "アクセス",
   description: "YS-BASEへのアクセス方法。横浜市瀬谷区下瀬谷1丁目41-4、環状4号線沿い。駐車場30台（無料）完備。相鉄線「瀬谷」駅からバス・タクシー。",
   openGraph: {

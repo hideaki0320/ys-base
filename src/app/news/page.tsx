@@ -5,6 +5,7 @@ import { PageHero } from "@/components/PageHero";
 import { createClient } from "@supabase/supabase-js";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/news" },
   title: "お知らせ",
   description: "YS-BASEからのお知らせ・ニュース一覧。予約受付情報、施設メンテナンス、イベント情報など。",
   openGraph: {

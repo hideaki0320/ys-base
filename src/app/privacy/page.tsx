@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacy" },
   title: "プライバシーポリシー",
   description: "YS-BASEのプライバシーポリシー。個人情報の取扱いについて。",
 };

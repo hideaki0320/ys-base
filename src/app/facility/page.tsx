@@ -18,6 +18,7 @@ import {
 import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/facility" },
   title: "施設概要",
   description:
     "YS-BASEの施設情報。約6,100㎡の敷地に天然芝のメインコート・サブコートの2面を完備。無料駐車場30台、トイレ・水道あり。横浜市瀬谷区、環状4号線沿い。",

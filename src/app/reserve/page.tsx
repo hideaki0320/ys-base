@@ -5,6 +5,7 @@ import { PageHero } from "@/components/PageHero";
 import { CANCEL_POLICY, EXIT_NOTICE, RAIN_CANCEL_NOTICE } from "@/lib/booking-notice";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/reserve" },
   title: "予約方法",
   description: "YS-BASEのコート予約方法。オンラインで空き状況確認・予約・決済（クレジットカード・PayPay）が可能。予約手順、注意事項、キャンセルポリシー。",
   openGraph: {

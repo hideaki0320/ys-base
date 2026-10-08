@@ -46,6 +46,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return {
     title: article.title,
     description: article.excerpt || `${article.title} - YS-BASEからのお知らせ`,
+    alternates: { canonical: `/news/${encodeURIComponent(slug)}` },
     openGraph: {
       title: `${article.title} | YS-BASE`,
       description: article.excerpt || `${article.title} - YS-BASEからのお知らせ`,

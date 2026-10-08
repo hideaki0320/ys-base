@@ -3,6 +3,11 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getPrice } from "@/lib/pricing";
 import { isWithinBookingWindow } from "@/lib/booking-window";
+import { SITE_URL } from "@/lib/site";
+
+// 決済後の戻り先。本番は正式ドメイン、ローカル開発では NEXT_PUBLIC_BASE_URL（localhost）
+const RETURN_BASE =
+  process.env.NODE_ENV === "production" ? SITE_URL : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -81,8 +86,8 @@ export async function POST(request: Request) {
         purpose: purpose || "",
         notes: notes || "",
       },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/reserve/complete?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/reserve/calendar`,
+      success_url: `${RETURN_BASE}/reserve/complete?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${RETURN_BASE}/reserve/calendar`,
     });
 
     return NextResponse.json({ url: session.url });

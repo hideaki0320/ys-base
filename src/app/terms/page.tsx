@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/terms" },
   title: "利用規約",
   description: "YS-BASE施設利用規約。ご利用前に必ずお読みください。",
 };

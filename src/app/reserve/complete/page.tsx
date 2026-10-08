@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CircleCheck } from "lucide-react";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: "予約完了",
 };
 

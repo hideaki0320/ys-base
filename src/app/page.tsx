@@ -2,6 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ChevronDown, MapPin, Clock, Car } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const menuCards = [
   {

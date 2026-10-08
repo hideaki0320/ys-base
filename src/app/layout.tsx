@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { LayoutShell } from "@/components/LayoutShell";
+import { SITE_URL } from "@/lib/site";
 
 const notoSansJP = Noto_Sans_JP({
   variable: "--font-noto-sans-jp",
@@ -9,7 +10,6 @@ const notoSansJP = Noto_Sans_JP({
   weight: ["400", "500", "700", "900"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://ys-base-production.up.railway.app";
 const SITE_NAME = "YS-BASE";
 const SITE_DESCRIPTION =
   "横浜市瀬谷区のサッカーコート「YS-BASE」。Y.S.C.C.横浜が運営する天然芝のスポーツパーク。少年サッカーからシニアまで、コート予約・レンタルはこちら。";
@@ -57,9 +57,6 @@ export const metadata: Metadata = {
     title: "YS-BASE | Y.S.C.C.横浜 天然芝スポーツパーク",
     description: SITE_DESCRIPTION,
     images: ["/opengraph-image.png"],
-  },
-  alternates: {
-    canonical: SITE_URL,
   },
   robots: {
     index: true,
