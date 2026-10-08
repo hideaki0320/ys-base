@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getPrice } from "@/lib/pricing";
 import { sendMail } from "@/lib/mail";
-import { buildConfirmationMail } from "@/lib/reservation-mail";
+import { buildAdminBookingMail, buildConfirmationMail, type AdminMailReservationRow } from "@/lib/reservation-mail";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -153,6 +153,7 @@ export async function POST(request: Request) {
       } else {
         console.log("[webhook] Reservations created:", reservations.length);
         await sendConfirmation(supabase, session.id, reservations);
+        await notifyAdmin(session.id, reservations);
       }
     } else {
       console.log("[webhook] Missing metadata (date/slots)");
@@ -206,4 +207,23 @@ async function sendConfirmation(
     .update(mailError ? { confirmation_error: mailError } : { confirmation_sent_at: new Date().toISOString() })
     .eq("stripe_session_id", sessionId);
   if (error) console.error("[webhook] confirmation status update failed:", error.message);
+}
+
+/** 運営宛て「新規予約のお知らせ」。失敗してもログに残すだけ（予約・お客様メールには影響させない） */
+async function notifyAdmin(sessionId: string, rows: AdminMailReservationRow[]) {
+  const to = process.env.CONTACT_NOTIFY_TO || process.env.MAIL_REPLY_TO;
+  if (!to) {
+    console.error("[webhook] admin notify skipped: CONTACT_NOTIFY_TO 未設定");
+    return;
+  }
+  const { subject, text } = buildAdminBookingMail(rows);
+  const result = await sendMail({
+    to: to.split(",").map((s) => s.trim()).filter(Boolean),
+    replyTo: rows[0]?.customer_email || undefined,
+    subject,
+    text,
+    idempotencyKey: `ysbase-admin-booking-${sessionId}`,
+  });
+  if (result.error) console.error("[webhook] admin notify failed:", result.error);
+  else console.log("[webhook] admin notify sent:", sessionId);
 }

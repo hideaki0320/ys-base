@@ -82,6 +82,55 @@ export function buildConfirmationMail(rows: MailReservationRow[]): { subject: st
   return { subject: `【YS-BASE】ご予約確定のお知らせ（${date}）`, text: lines.join("\n") };
 }
 
+export interface AdminMailReservationRow extends MailReservationRow {
+  customer_email: string;
+  customer_phone: string;
+  address?: string | null;
+  purpose?: string | null;
+  notes?: string | null;
+  promotion_code?: string | null;
+}
+
+/** 運営宛て「新規予約のお知らせ」 */
+export function buildAdminBookingMail(rows: AdminMailReservationRow[]): { subject: string; text: string } {
+  const first = rows[0];
+  const sorted = [...rows].sort((a, b) => a.slot_hour - b.slot_hour);
+  const shortDate = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
+  }).format(new Date(`${first.reservation_date}T00:00:00+09:00`));
+  const discount = rows.reduce((s, r) => s + (r.discount_amount || 0), 0);
+
+  const lines = [
+    "YS-BASE に新しい予約が入りました（お支払い済み・予約確定）。",
+    "このメールに返信すると、予約者に直接届きます。",
+    "",
+    "■ 予約内容",
+    `日程: ${formatDateLongJP(first.reservation_date)}`,
+    "時間:",
+    ...slotLines(rows),
+    `お支払い金額: ${formatPrice(paidAmount(rows))}（税込）`,
+    ...(discount > 0 ? [`割引: -${formatPrice(discount)}（コード: ${first.promotion_code || "-"}）`] : []),
+    "",
+    "■ 予約者",
+    `お名前: ${first.customer_name}`,
+    `電話番号: ${first.customer_phone || "-"}`,
+    `メールアドレス: ${first.customer_email || "-"}`,
+    `住所: ${first.address || "-"}`,
+    `利用目的: ${first.purpose || "-"}`,
+    "その他:",
+    first.notes || "-",
+    "",
+    "管理画面: https://ys-base.yscc1986.net/admin",
+  ];
+  return {
+    subject: `[YS-BASE 新規予約] ${shortDate} ${formatTimeSlot(sorted[0].slot_hour).split("〜")[0]}〜 ${first.customer_name} 様`,
+    text: lines.join("\n"),
+  };
+}
+
 /** 雨天中止メールの初期文面。管理画面で編集してから送る */
 export function rainCancelTemplate(): { subject: string; body: string } {
   return {
