@@ -43,6 +43,7 @@ interface Reservation {
   customer_phone: string;
   discount_amount: number;
   promotion_code: string | null;
+  team_name?: string | null;
   address: string | null;
   purpose: string | null;
   notes: string | null;
@@ -578,6 +579,7 @@ export default function AdminPage() {
     const q = searchQuery.toLowerCase();
     return (
       r.customer_name.toLowerCase().includes(q) ||
+      (r.team_name && r.team_name.toLowerCase().includes(q)) ||
       r.customer_email.toLowerCase().includes(q) ||
       r.customer_phone.includes(q) ||
       (r.address && r.address.toLowerCase().includes(q)) ||
@@ -745,7 +747,7 @@ export default function AdminPage() {
                 </div>
                 <div className="flex items-center gap-2 flex-1 min-w-[200px]">
                   <Search size={16} className="text-gray-400" />
-                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="名前・メール・電話で検索" className="border border-gray-300 px-3 py-2 text-sm rounded-sm flex-1" />
+                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="名前・チーム名・メール・電話で検索" className="border border-gray-300 px-3 py-2 text-sm rounded-sm flex-1" />
                 </div>
               </div>
             </div>
@@ -797,6 +799,7 @@ export default function AdminPage() {
                               <div className="px-4 pb-4 bg-gray-50 border-t border-gray-100">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 py-4 text-sm">
                                   <div><span className="text-gray-500 text-xs">お名前</span><p className="font-medium text-gray-800">{r.customer_name}</p></div>
+                                  {r.team_name && <div><span className="text-gray-500 text-xs">所属チーム名</span><p className="font-medium text-gray-800">{r.team_name}</p></div>}
                                   <div><span className="text-gray-500 text-xs">メールアドレス</span><p className="font-medium text-gray-800">{r.customer_email}</p></div>
                                   <div><span className="text-gray-500 text-xs">電話番号</span><p className="font-medium text-gray-800">{r.customer_phone}</p></div>
                                   {r.address && <div><span className="text-gray-500 text-xs">住所</span><p className="font-medium text-gray-800">{r.address}</p></div>}

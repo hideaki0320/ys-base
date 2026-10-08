@@ -138,6 +138,7 @@ export async function POST(request: Request) {
           customer_name: meta.customerName || "",
           customer_email: session.customer_email || "",
           customer_phone: meta.customerPhone || "",
+          team_name: meta.teamName || null,
           address: meta.address || null,
           purpose: meta.purpose || null,
           notes: meta.notes || null,

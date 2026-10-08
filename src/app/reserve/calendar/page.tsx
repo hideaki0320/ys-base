@@ -14,6 +14,7 @@ import {
   Target,
   CreditCard,
   Ban,
+  Users,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
 import { todayKeyJST, maxDateKeyJST, BOOKING_WINDOW_LABEL } from "@/lib/booking-window";
@@ -35,6 +36,7 @@ interface ReservationData {
   name: string;
   email: string;
   phone: string;
+  teamName: string;
   address: string;
   purpose: string;
   notes: string;
@@ -52,6 +54,7 @@ export default function ReservationCalendarPage() {
     name: "",
     email: "",
     phone: "",
+    teamName: "",
     address: "",
     purpose: "",
     notes: "",
@@ -196,6 +199,7 @@ export default function ReservationCalendarPage() {
           customerName: data.name,
           customerEmail: data.email,
           customerPhone: data.phone,
+          teamName: data.teamName,
           address: data.address,
           purpose: data.purpose,
           notes: data.notes,
@@ -465,6 +469,21 @@ export default function ReservationCalendarPage() {
                 />
               </div>
               <div>
+                <label htmlFor="res-team" className="flex items-center gap-2 text-sm font-bold text-primary mb-2">
+                  <Users size={16} />
+                  所属チーム名
+                </label>
+                <input
+                  type="text"
+                  id="res-team"
+                  value={data.teamName}
+                  onChange={(e) => setData((d) => ({ ...d, teamName: e.target.value }))}
+                  maxLength={100}
+                  placeholder="例：瀬谷FCジュニア"
+                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                />
+              </div>
+              <div>
                 <label htmlFor="res-email" className="flex items-center gap-2 text-sm font-bold text-primary mb-2">
                   <Mail size={16} />
                   メールアドレス <span className="text-red-500">*</span>
@@ -606,6 +625,12 @@ export default function ReservationCalendarPage() {
                     <span className="text-gray-500">お名前</span>
                     <p className="font-medium">{data.name}</p>
                   </div>
+                  {data.teamName && (
+                    <div>
+                      <span className="text-gray-500">所属チーム名</span>
+                      <p className="font-medium">{data.teamName}</p>
+                    </div>
+                  )}
                   <div>
                     <span className="text-gray-500">メールアドレス</span>
                     <p className="font-medium">{data.email}</p>

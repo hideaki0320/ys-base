@@ -18,7 +18,7 @@ function getStripe() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { date, slots, customerName, customerEmail, customerPhone, address, purpose, notes } = body;
+    const { date, slots, customerName, customerEmail, customerPhone, teamName, address, purpose, notes } = body;
 
     if (!Array.isArray(slots) || slots.length === 0 || !slots.every((h) => Number.isInteger(h))) {
       return NextResponse.json({ error: "slots required" }, { status: 400 });
@@ -82,6 +82,7 @@ export async function POST(request: Request) {
         slots: JSON.stringify(slots),
         customerName,
         customerPhone,
+        teamName: typeof teamName === "string" ? teamName.trim().slice(0, 100) : "",
         address: address || "",
         purpose: purpose || "",
         notes: notes || "",

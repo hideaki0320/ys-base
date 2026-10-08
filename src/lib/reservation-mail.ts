@@ -35,6 +35,7 @@ export interface MailReservationRow {
   total_price: number;
   discount_amount?: number | null;
   customer_name: string;
+  team_name?: string | null;
 }
 
 function slotLines(rows: MailReservationRow[]): string[] {
@@ -61,6 +62,7 @@ export function buildConfirmationMail(rows: MailReservationRow[]): { subject: st
     "お支払いを確認し、ご予約が確定しました。",
     "",
     "■ ご予約内容",
+    ...(first.team_name ? [`所属チーム名: ${first.team_name}`] : []),
     `日程: ${date}`,
     "時間:",
     ...slotLines(rows),
@@ -115,6 +117,7 @@ export function buildAdminBookingMail(rows: AdminMailReservationRow[]): { subjec
     "",
     "■ 予約者",
     `お名前: ${first.customer_name}`,
+    `所属チーム名: ${first.team_name || "-"}`,
     `電話番号: ${first.customer_phone || "-"}`,
     `メールアドレス: ${first.customer_email || "-"}`,
     `住所: ${first.address || "-"}`,
