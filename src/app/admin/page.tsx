@@ -314,8 +314,9 @@ export default function AdminPage() {
   }, [apiKey]);
 
   useEffect(() => {
-    if (authenticated && tab === "inquiries") fetchInquiries();
-  }, [authenticated, tab, fetchInquiries]);
+    // 未対応バッジを出すため、ログイン直後にも取得する
+    if (authenticated) fetchInquiries();
+  }, [authenticated, fetchInquiries]);
 
   async function updateInquiryStatus(id: string, status: "new" | "done") {
     setUpdatingInquiryId(id);
@@ -1493,7 +1494,7 @@ export default function AdminPage() {
                             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm py-3">
                               <div className="flex items-center gap-2">
                                 <Mail size={14} className="text-gray-400" />
-                                <a href={`mailto:${q.email}`} className="text-blue-600 hover:underline break-all">{q.email}</a>
+                                <a href={`mailto:${encodeURIComponent(q.email)}`} className="text-blue-600 hover:underline break-all">{q.email}</a>
                               </div>
                               <div className="flex items-center gap-2">
                                 <Phone size={14} className="text-gray-400" />

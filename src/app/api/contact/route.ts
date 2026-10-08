@@ -15,7 +15,11 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "その他",
 };
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+// 同一 IP からの連投を制限（10分に3件まで）
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX = 3;
 
 function str(value: unknown, max: number): string {
   if (typeof value !== "string") return "";
@@ -57,6 +61,22 @@ export async function POST(request: Request) {
   }
 
   const supabase = getSupabase();
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+
+  const { count, error: countError } = await supabase
+    .from("ysbase_inquiries")
+    .select("id", { count: "exact", head: true })
+    .eq("ip", ip)
+    .gte("created_at", new Date(Date.now() - RATE_WINDOW_MS).toISOString());
+  if (countError) {
+    console.error("[contact] rate check failed:", countError.message);
+  } else if ((count ?? 0) >= RATE_MAX) {
+    return NextResponse.json(
+      { error: "短時間に複数回送信されたため受け付けできませんでした。しばらくしてから再度お試しください" },
+      { status: 429 }
+    );
+  }
+
   const { data: inquiry, error } = await supabase
     .from("ysbase_inquiries")
     .insert({
@@ -66,6 +86,7 @@ export async function POST(request: Request) {
       phone: phone || null,
       category,
       message,
+      ip,
     })
     .select("id, created_at")
     .single();

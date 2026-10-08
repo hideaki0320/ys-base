@@ -37,7 +37,13 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id, status } = (await request.json()) as { id?: string; status?: string };
+  let body: { id?: string; status?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+  }
+  const { id, status } = body;
   if (!id || (status !== "new" && status !== "done")) {
     return NextResponse.json({ error: "id and status (new|done) required" }, { status: 400 });
   }

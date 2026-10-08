@@ -12,6 +12,7 @@ create table if not exists ysbase_inquiries (
   status text not null default 'new' check (status in ('new', 'done')),
   notified_at timestamptz,
   notify_error text,
+  ip text,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -28,3 +29,4 @@ alter table ysbase_inquiries enable row level security;
 
 create index if not exists idx_ysbase_inquiries_created_at on ysbase_inquiries (created_at desc);
 create index if not exists idx_ysbase_inquiries_status on ysbase_inquiries (status);
+create index if not exists idx_ysbase_inquiries_ip_created_at on ysbase_inquiries (ip, created_at desc);
