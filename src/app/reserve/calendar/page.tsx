@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
 import { todayKeyJST, maxDateKeyJST, BOOKING_WINDOW_LABEL } from "@/lib/booking-window";
-import { EXIT_NOTICE } from "@/lib/booking-notice";
+import { CANCEL_POLICY, EXIT_NOTICE } from "@/lib/booking-notice";
 
 type Step = "date" | "slots" | "form" | "confirm";
 
@@ -643,9 +643,11 @@ export default function ReservationCalendarPage() {
 
             <div className="bg-yellow-50 border border-yellow-200 p-4 mb-8 text-sm text-yellow-800">
               <p className="font-bold mb-1">キャンセルポリシー</p>
-              <p>
-                利用日の31日前までのキャンセルは無料。30日前から当日までは利用料金100%のキャンセル料がかかります。
-              </p>
+              <ul className="space-y-0.5">
+                {CANCEL_POLICY.map((p) => (
+                  <li key={p.period}>{p.period}：{p.fee}</li>
+                ))}
+              </ul>
               <p className="mt-1">
                 雨天や気象警報等により施設側の判断で利用を中止する場合は、キャンセル料はかからず全額返金いたします。
               </p>

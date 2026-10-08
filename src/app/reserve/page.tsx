@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight, CircleAlert } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
-import { EXIT_NOTICE, RAIN_CANCEL_NOTICE } from "@/lib/booking-notice";
+import { CANCEL_POLICY, EXIT_NOTICE, RAIN_CANCEL_NOTICE } from "@/lib/booking-notice";
 
 export const metadata: Metadata = {
   title: "予約方法",
@@ -130,16 +130,14 @@ export default function ReservePage() {
             </h2>
             <div className="bg-gray-50 p-6 sm:p-8 rounded-sm border border-gray-100">
               <div className="space-y-3 text-[13px] text-gray-600">
-                <div className="flex items-start gap-2.5">
-                  <CircleAlert size={14} className="text-accent shrink-0 mt-0.5" />
-                  <span>利用日の31日前までのキャンセルは<strong className="text-primary">無料</strong>。</span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <CircleAlert size={14} className="text-accent shrink-0 mt-0.5" />
-                  <span>
-                    利用日の30日前から当日までは利用料金<strong className="text-primary">100%</strong>のキャンセル料がかかります。
-                  </span>
-                </div>
+                {CANCEL_POLICY.map((p) => (
+                  <div key={p.period} className="flex items-start gap-2.5">
+                    <CircleAlert size={14} className="text-accent shrink-0 mt-0.5" />
+                    <span>
+                      {p.period}：<strong className="text-primary">{p.fee}</strong>
+                    </span>
+                  </div>
+                ))}
                 <div className="flex items-start gap-2.5">
                   <CircleAlert size={14} className="text-accent shrink-0 mt-0.5" />
                   <span>{RAIN_CANCEL_NOTICE}</span>

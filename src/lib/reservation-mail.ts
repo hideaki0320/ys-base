@@ -3,11 +3,10 @@
  * 管理画面（雨天中止のプレビュー）からも使うため、サーバー専用の処理は置かない
  */
 import { formatPrice, formatTimeSlot } from "@/lib/pricing";
-import { EXIT_NOTICE, RAIN_CANCEL_NOTICE } from "@/lib/booking-notice";
+import { CANCEL_POLICY, CONTACT_PHONE, EXIT_NOTICE, RAIN_CANCEL_NOTICE } from "@/lib/booking-notice";
 
 export const CANCEL_POLICY_LINES = [
-  "・利用日の31日前までのキャンセルは無料です。",
-  "・利用日の30日前から当日までは、利用料金の100%をキャンセル料として申し受けます。",
+  ...CANCEL_POLICY.map((p) => `・${p.period}：${p.fee}`),
   `・${RAIN_CANCEL_NOTICE}`,
 ];
 
@@ -15,7 +14,7 @@ const SIGNATURE = [
   "――――――――――――――――――――",
   "YS-BASE（Y.S.C.C.横浜 天然芝スポーツパーク）",
   "〒246-0035 神奈川県横浜市瀬谷区下瀬谷1丁目41-4",
-  "TEL: 045-621-8760",
+  `TEL: ${CONTACT_PHONE}`,
   "https://ys-base.yscc1986.net",
   "――――――――――――――――――――",
 ].join("\n");
@@ -73,7 +72,7 @@ export function buildConfirmationMail(rows: MailReservationRow[]): { subject: st
     "",
     "■ キャンセルポリシー",
     ...CANCEL_POLICY_LINES,
-    "キャンセル・変更をご希望の場合は、お電話（045-621-8760）またはこのメールへの返信でご連絡ください。",
+    `キャンセル・変更をご希望の場合は、お電話（${CONTACT_PHONE}）またはこのメールへの返信でご連絡ください。`,
     "",
     "当日のご来場をお待ちしております。",
     "",

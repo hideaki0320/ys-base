@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendMail } from "@/lib/mail";
+import { CONTACT_PHONE } from "@/lib/booking-notice";
 
 function getSupabase() {
   return createClient(
@@ -95,7 +96,7 @@ export async function POST(request: Request) {
   if (error || !inquiry) {
     console.error("[contact] insert failed:", error?.message);
     return NextResponse.json(
-      { error: "送信に失敗しました。お手数ですがお電話（045-621-8760）でお問い合わせください" },
+      { error: `送信に失敗しました。お手数ですがお電話（${CONTACT_PHONE}）でお問い合わせください` },
       { status: 500 }
     );
   }

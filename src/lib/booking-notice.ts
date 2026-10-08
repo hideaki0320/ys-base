@@ -4,3 +4,13 @@ export const EXIT_NOTICE =
 
 export const RAIN_CANCEL_NOTICE =
   "雨天、気象庁による警報・注意報、落雷の予兆等により施設側の判断で利用を中止する場合は、キャンセル料はかからず、利用料金を全額返金いたします。";
+
+/** 連絡先電話番号（サイト・メール共通） */
+export const CONTACT_PHONE = "070-8710-1234";
+
+/** キャンセルポリシー（お客様都合のキャンセル） */
+export const CANCEL_POLICY = [
+  { period: "利用日の8日前まで", fee: "無料（キャンセル料0%）" },
+  { period: "利用日の7日前〜3日前", fee: "利用料金の50%" },
+  { period: "利用日の2日前〜当日", fee: "利用料金の100%" },
+] as const;
