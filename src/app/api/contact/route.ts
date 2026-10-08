@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendMail } from "@/lib/mail";
 
 function getSupabase() {
   return createClient(
@@ -120,12 +121,9 @@ async function notifyAdmin(input: {
   category: string;
   message: string;
 }): Promise<string | null> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.MAIL_FROM;
   const to = process.env.CONTACT_NOTIFY_TO || process.env.MAIL_REPLY_TO;
-
-  if (!apiKey || !from || !to) {
-    const msg = "RESEND_API_KEY / MAIL_FROM / CONTACT_NOTIFY_TO が未設定のため通知メールを送信していません";
+  if (!to) {
+    const msg = "CONTACT_NOTIFY_TO が未設定のため通知メールを送信していません";
     console.error("[contact]", msg);
     return msg;
   }
@@ -146,31 +144,15 @@ async function notifyAdmin(input: {
     "管理画面: https://ys-base.yscc1986.net/admin",
   ].join("\n");
 
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: to.split(",").map((s) => s.trim()).filter(Boolean),
-        reply_to: input.email,
-        subject: `[YS-BASE お問い合わせ] ${CATEGORY_LABELS[input.category]} - ${input.name.replace(/[\r\n]/g, " ")} 様`,
-        text,
-      }),
-    });
-    if (!res.ok) {
-      const detail = await res.text();
-      const msg = `Resend ${res.status}: ${detail.slice(0, 500)}`;
-      console.error("[contact] notify failed:", msg);
-      return msg;
-    }
-    return null;
-  } catch (e) {
-    const msg = `Resend 接続エラー: ${e instanceof Error ? e.message : String(e)}`;
-    console.error("[contact]", msg);
-    return msg;
+  const result = await sendMail({
+    to: to.split(",").map((s) => s.trim()).filter(Boolean),
+    replyTo: input.email,
+    subject: `[YS-BASE お問い合わせ] ${CATEGORY_LABELS[input.category]} - ${input.name} 様`,
+    text,
+  });
+  if (result.error) {
+    console.error("[contact] notify failed:", result.error);
+    return result.error;
   }
+  return null;
 }

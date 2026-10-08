@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getPrice } from "@/lib/pricing";
+import { sendMail } from "@/lib/mail";
+import { buildConfirmationMail } from "@/lib/reservation-mail";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -150,6 +152,7 @@ export async function POST(request: Request) {
         console.error("[webhook] Insert failed:", insertError);
       } else {
         console.log("[webhook] Reservations created:", reservations.length);
+        await sendConfirmation(supabase, session.id, reservations);
       }
     } else {
       console.log("[webhook] Missing metadata (date/slots)");
@@ -162,4 +165,45 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ received: true });
+}
+
+/**
+ * 予約完了メールを送る。失敗しても予約は確定済みなので webhook は成功で返し、
+ * 結果を confirmation_sent_at / confirmation_error に残して管理画面で確認できるようにする。
+ */
+async function sendConfirmation(
+  supabase: ReturnType<typeof getSupabase>,
+  sessionId: string,
+  rows: Array<{
+    reservation_date: string;
+    slot_hour: number;
+    total_price: number;
+    discount_amount: number;
+    customer_name: string;
+    customer_email: string;
+  }>
+) {
+  const to = rows[0]?.customer_email;
+  let mailError: string | null = null;
+  if (!to) {
+    mailError = "メールアドレスが空のため予約完了メールを送信していません";
+  } else {
+    const { subject, text } = buildConfirmationMail(rows);
+    const result = await sendMail({
+      to: [to],
+      subject,
+      text,
+      idempotencyKey: `ysbase-confirm-${sessionId}`,
+    });
+    mailError = result.error ?? null;
+  }
+
+  if (mailError) console.error("[webhook] confirmation mail failed:", mailError);
+  else console.log("[webhook] confirmation mail sent:", sessionId);
+
+  const { error } = await supabase
+    .from("ysbase_reservations")
+    .update(mailError ? { confirmation_error: mailError } : { confirmation_sent_at: new Date().toISOString() })
+    .eq("stripe_session_id", sessionId);
+  if (error) console.error("[webhook] confirmation status update failed:", error.message);
 }

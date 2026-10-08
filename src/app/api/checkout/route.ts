@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getPrice } from "@/lib/pricing";
+import { isWithinBookingWindow } from "@/lib/booking-window";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -15,6 +16,16 @@ export async function POST(request: Request) {
 
     if (!Array.isArray(slots) || slots.length === 0 || !slots.every((h) => Number.isInteger(h))) {
       return NextResponse.json({ error: "slots required" }, { status: 400 });
+    }
+
+    if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return NextResponse.json({ error: "日付が正しくありません" }, { status: 400 });
+    }
+    if (!isWithinBookingWindow(date)) {
+      return NextResponse.json(
+        { error: "ご予約いただけるのは1ヶ月先（同じ日付）までです。日付を選び直してください" },
+        { status: 400 }
+      );
     }
 
     const reservationDate = new Date(date + "T00:00:00");

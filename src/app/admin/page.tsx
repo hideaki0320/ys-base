@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
 import { RichEditor } from "@/components/RichEditor";
+import { RainCancelPanel } from "@/components/admin/RainCancelPanel";
 
 /* ─── types ─── */
 
@@ -47,6 +48,9 @@ interface Reservation {
   notes: string | null;
   stripe_session_id: string | null;
   stripe_payment_intent_id: string | null;
+  confirmation_sent_at?: string | null;
+  confirmation_error?: string | null;
+  cancel_reason?: string | null;
   status: string;
   created_at: string;
 }
@@ -124,7 +128,7 @@ interface NewsItem {
   updated_at: string;
 }
 
-type Tab = "reservations" | "availability" | "news" | "inquiries";
+type Tab = "reservations" | "availability" | "rain" | "news" | "inquiries";
 
 export default function AdminPage() {
   const [apiKey, setApiKey] = useState(() => {
@@ -660,7 +664,7 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <h1 className="text-lg font-black text-gray-900">YS-BASE 管理画面</h1>
           <button
-            onClick={() => tab === "reservations" ? fetchReservations() : tab === "availability" ? fetchAvailability() : tab === "news" ? fetchNews() : fetchInquiries()}
+            onClick={() => tab === "reservations" ? fetchReservations() : tab === "availability" ? fetchAvailability() : tab === "news" ? fetchNews() : tab === "inquiries" ? fetchInquiries() : undefined}
             disabled={loading || availLoading || newsLoading || inquiriesLoading}
             className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
           >
@@ -668,16 +672,16 @@ export default function AdminPage() {
             更新
           </button>
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-0 border-t border-gray-100">
-          {(["reservations", "availability", "news", "inquiries"] as const).map((t) => (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-0 border-t border-gray-100 overflow-x-auto">
+          {(["reservations", "availability", "rain", "news", "inquiries"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-5 py-3 text-sm font-bold border-b-2 transition-colors ${
+              className={`px-5 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
                 tab === t ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
-              {t === "reservations" ? "予約一覧" : t === "availability" ? "スロット管理" : t === "news" ? "お知らせ" : "お問い合わせ"}
+              {t === "reservations" ? "予約一覧" : t === "availability" ? "スロット管理" : t === "rain" ? "雨天中止" : t === "news" ? "お知らせ" : "お問い合わせ"}
               {t === "inquiries" && inquiries.some((q) => q.status === "new") && (
                 <span className="ml-1.5 inline-block min-w-[18px] px-1 text-[11px] leading-[18px] rounded-full bg-red-500 text-white text-center">
                   {inquiries.filter((q) => q.status === "new").length}
@@ -800,6 +804,8 @@ export default function AdminPage() {
                                   )}
                                   <div><span className="text-gray-500 text-xs">決済ステータス</span><p className="font-medium text-gray-800">{r.stripe_payment_intent_id ? "入金済み" : r.stripe_session_id ? "決済セッション作成済み" : "未決済"}</p></div>
                                   {r.stripe_payment_intent_id && <div><span className="text-gray-500 text-xs">Stripe Payment ID</span><p className="font-mono text-xs text-gray-600 break-all">{r.stripe_payment_intent_id}</p></div>}
+                                  <div><span className="text-gray-500 text-xs">予約確定メール</span><p className={`font-medium ${r.confirmation_error ? "text-amber-700" : "text-gray-800"}`}>{r.confirmation_sent_at ? `送信済み（${formatDateTimeJP(r.confirmation_sent_at)}）` : r.confirmation_error ? `未送信: ${r.confirmation_error}` : "記録なし"}</p></div>
+                                  {r.cancel_reason && <div><span className="text-gray-500 text-xs">キャンセル理由</span><p className="font-medium text-gray-800">{r.cancel_reason}</p></div>}
                                   <div><span className="text-gray-500 text-xs">予約登録日時</span><p className="font-medium text-gray-800">{new Date(r.created_at).toLocaleString("ja-JP")}</p></div>
                                 </div>
                                 {r.status !== "cancelled" ? (
@@ -1428,6 +1434,9 @@ export default function AdminPage() {
             )}
           </>
         )}
+
+        {/* ════════════════ TAB: 雨天中止 ════════════════ */}
+        {tab === "rain" && <RainCancelPanel apiKey={apiKey} />}
 
         {/* ════════════════ TAB: お問い合わせ ════════════════ */}
         {tab === "inquiries" && (

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight, CircleAlert } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
+import { EXIT_NOTICE, RAIN_CANCEL_NOTICE } from "@/lib/booking-notice";
 
 export const metadata: Metadata = {
   title: "予約方法",
@@ -25,18 +26,13 @@ const steps = [
   },
   {
     num: "3",
-    title: "確認メールを受信",
-    description: "予約番号が記された「予約確認メール」をお受け取りください。",
+    title: "利用料のお支払い",
+    description: "予約内容をご確認のうえ、そのまま利用料をお支払いください（クレジットカード・PayPay対応）。",
   },
   {
     num: "4",
-    title: "利用料のお支払い",
-    description: "メールの案内に沿って利用料をお支払いください（クレジットカード・PayPay対応）。",
-  },
-  {
-    num: "5",
-    title: "利用確定",
-    description: "お支払い確認後、「利用確定メール」が届きましたら予約完了です。",
+    title: "予約確定",
+    description: "お支払いが完了した時点で予約確定です。「ご予約確定のお知らせ」メールをお送りします。",
   },
 ];
 
@@ -102,7 +98,7 @@ export default function ReservePage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1 h-1 bg-accent rounded-full shrink-0 mt-2" />
-                  ご利用希望月の1ヶ月前の1日から申し込み可能
+                  ご利用日の1ヶ月前（同じ日付）から申し込み可能
                 </li>
               </ul>
             </div>
@@ -115,6 +111,7 @@ export default function ReservePage() {
                 { label: "商用利用：", text: "当施設の商用利用は禁じられております。判断については事務局で行いますので、ご不明な場合は事前にお問い合わせください。" },
                 { label: "ピッチ空き状況：", text: "利用お申し込みいただいた時点で空きがあった場合でも、既に他の方の予約が入っている場合がございます。" },
                 { label: "天然芝の養生：", text: "芝のコンディション維持のため、メンテナンス期間中はご利用いただけない場合がございます。" },
+                { label: "退出時間：", text: EXIT_NOTICE },
               ].map((item) => (
                 <li key={item.label} className="flex items-start gap-2">
                   <span className="w-1 h-1 bg-accent rounded-full shrink-0 mt-2" />
@@ -145,9 +142,7 @@ export default function ReservePage() {
                 </div>
                 <div className="flex items-start gap-2.5">
                   <CircleAlert size={14} className="text-accent shrink-0 mt-0.5" />
-                  <span>
-                    気象庁による警報・注意報、落雷の予兆等により施設側の判断で利用を中止する場合はキャンセル料はかかりません。
-                  </span>
+                  <span>{RAIN_CANCEL_NOTICE}</span>
                 </div>
               </div>
             </div>

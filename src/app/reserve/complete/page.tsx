@@ -20,7 +20,9 @@ export default function ReservationCompletePage() {
           <p className="text-sm text-gray-500 leading-relaxed mb-8">
             ご予約・お支払いいただきありがとうございます。
             <br />
-            利用確定のご案内メールをお送りいたしました。
+            ご予約確定のお知らせをメールでお送りします。
+            <br />
+            届かない場合は迷惑メールフォルダもご確認ください。
             <br />
             当日のご来場をお待ちしております。
           </p>

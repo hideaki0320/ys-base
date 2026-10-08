@@ -16,6 +16,8 @@ import {
   Ban,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
+import { maxDateKeyJST, BOOKING_WINDOW_LABEL } from "@/lib/booking-window";
+import { EXIT_NOTICE } from "@/lib/booking-notice";
 
 type Step = "date" | "slots" | "form" | "confirm";
 
@@ -55,7 +57,6 @@ export default function ReservationCalendarPage() {
     notes: "",
   });
   const [submitting, setSubmitting] = useState(false);
-  const [completed, setCompleted] = useState(false);
   const [bookedSlots, setBookedSlots] = useState<number[]>([]);
   const [closedSlots, setClosedSlots] = useState<number[]>([]);
   const [monthUnavailable, setMonthUnavailable] = useState<Record<string, number[]>>({});
@@ -66,11 +67,11 @@ export default function ReservationCalendarPage() {
     return d;
   }, []);
 
+  // 予約できる最終日の翌日 0:00（この日付以降は選べない）
   const maxDate = useMemo(() => {
-    const d = new Date(today);
-    d.setMonth(d.getMonth() + 2);
-    return d;
-  }, [today]);
+    const [y, m, d] = maxDateKeyJST().split("-").map(Number);
+    return new Date(y, m - 1, d + 1);
+  }, []);
 
   const fetchSlotStatus = useCallback(async (date: Date) => {
     const dateStr = toDateKey(date);
@@ -200,64 +201,17 @@ export default function ReservationCalendarPage() {
           notes: data.notes,
         }),
       });
-      const result = await res.json();
+      const result = await res.json().catch(() => ({}));
       if (result.url) {
         window.location.href = result.url;
       } else {
-        setCompleted(true);
+        alert(result.error || "決済画面を開けませんでした。もう一度お試しください。");
       }
     } catch {
       alert("エラーが発生しました。もう一度お試しください。");
     } finally {
       setSubmitting(false);
     }
-  }
-
-  if (completed) {
-    return (
-      <div className="pt-20 min-h-screen bg-gray-50">
-        <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-          <div className="bg-white p-8 sm:p-12 border border-gray-200">
-            <div className="w-16 h-16 bg-green-100 flex items-center justify-center mx-auto mb-6">
-              <CreditCard size={32} className="text-green-600" />
-            </div>
-            <h1 className="text-2xl font-black text-primary mb-4">予約を受け付けました</h1>
-            <p className="text-gray-700 leading-relaxed mb-6">
-              ご予約いただきありがとうございます。
-              <br />
-              確認メールをお送りしましたのでご確認ください。
-              <br />
-              お支払い確認後、利用確定メールをお送りいたします。
-            </p>
-            <div className="bg-gray-50 p-4 text-left text-sm space-y-2 mb-6">
-              <p>
-                <strong>日程：</strong>
-                {data.date?.toLocaleDateString("ja-JP", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  weekday: "short",
-                })}
-              </p>
-              <p>
-                <strong>時間：</strong>
-                {data.selectedSlots.map((h) => formatTimeSlot(h)).join("、")}
-              </p>
-              <p>
-                <strong>合計金額：</strong>
-                {formatPrice(totalPrice)}（税込）
-              </p>
-            </div>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold px-8 py-3 transition-colors"
-            >
-              トップに戻る
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -384,7 +338,7 @@ export default function ReservationCalendarPage() {
                 予約不可・営業日外
               </span>
             </div>
-            <p className="mt-2 text-xs text-gray-500">※2ヶ月先まで予約できます。</p>
+            <p className="mt-2 text-xs text-gray-500">※{BOOKING_WINDOW_LABEL}予約できます。</p>
           </div>
         )}
 
@@ -682,10 +636,18 @@ export default function ReservationCalendarPage() {
               </div>
             </div>
 
+            <div className="border border-gray-200 p-4 mb-4 text-sm text-gray-700">
+              <p className="font-bold mb-1 text-primary">ご利用時間について</p>
+              <p>{EXIT_NOTICE}</p>
+            </div>
+
             <div className="bg-yellow-50 border border-yellow-200 p-4 mb-8 text-sm text-yellow-800">
               <p className="font-bold mb-1">キャンセルポリシー</p>
               <p>
                 利用日の31日前までのキャンセルは無料。30日前から当日までは利用料金100%のキャンセル料がかかります。
+              </p>
+              <p className="mt-1">
+                雨天や気象警報等により施設側の判断で利用を中止する場合は、キャンセル料はかからず全額返金いたします。
               </p>
             </div>
 
