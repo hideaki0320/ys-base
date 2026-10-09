@@ -63,6 +63,16 @@ const gallery = [
     alt: "YS-BASE ゴール前でのトレーニング風景",
     className: "",
   },
+  {
+    src: "/images/facility/goal-front.jpg",
+    alt: "YS-BASE 天然芝コートに設置されたサッカーゴール",
+    className: "col-span-2",
+  },
+  {
+    src: "/images/facility/goal-wide.jpg",
+    alt: "YS-BASE ゴール脇から見た天然芝コートと防球ネット",
+    className: "col-span-2",
+  },
 ];
 
 const amenities = [

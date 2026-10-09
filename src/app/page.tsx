@@ -212,7 +212,7 @@ export default async function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
-                <Image src="/images/natural_grass.png" alt="YS-BASE 天然芝フィールド全景" fill className="object-cover" />
+                <Image src="/images/facility/goal-wide.jpg" alt="YS-BASE 天然芝フィールドとゴール" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
               </div>
               <h3 className="text-lg font-bold text-primary mb-2">天然芝のフィールド</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
