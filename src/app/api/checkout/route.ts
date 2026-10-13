@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
     if (!isWithinBookingWindow(date)) {
       return NextResponse.json(
-        { error: "ご予約いただけるのは1ヶ月先（同じ日付）までです。日付を選び直してください" },
+        { error: "選択した日付はご予約いただけません。日付を選び直してください" },
         { status: 400 }
       );
     }

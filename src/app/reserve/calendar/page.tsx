@@ -17,7 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
-import { todayKeyJST, maxDateKeyJST, BOOKING_WINDOW_LABEL } from "@/lib/booking-window";
+import { todayKeyJST, maxDateKeyJST, BOOKING_WINDOW_LABEL, bookingLastDateNote } from "@/lib/booking-window";
 import { CANCEL_POLICY, EXIT_NOTICE } from "@/lib/booking-notice";
 
 type Step = "date" | "slots" | "form" | "confirm";
@@ -343,6 +343,9 @@ export default function ReservationCalendarPage() {
               </span>
             </div>
             <p className="mt-2 text-xs text-gray-500">※{BOOKING_WINDOW_LABEL}予約できます。</p>
+            {bookingLastDateNote() && (
+              <p className="mt-1 text-xs text-gray-500">※{bookingLastDateNote()}</p>
+            )}
           </div>
         )}
 

@@ -6,6 +6,20 @@
 
 export const BOOKING_WINDOW_LABEL = "1ヶ月先（同じ日付）まで";
 
+/**
+ * 予約受付の最終日（この日より後は 1ヶ月以内でも選べない・予約できない）。
+ * 受付を再開するときは null にするか日付を延ばす。
+ */
+export const BOOKING_LAST_DATE: string | null = "2026-11-20";
+
+/** カレンダーに出す注記（最終日が設定されているときだけ） */
+export function bookingLastDateNote(): string | null {
+  if (!BOOKING_LAST_DATE) return null;
+  const [, m, d] = BOOKING_LAST_DATE.split("-").map(Number);
+  const next = new Date(Date.UTC(2000, m - 1, d + 1));
+  return `${next.getUTCMonth() + 1}月${next.getUTCDate()}日以降のご予約は受け付けておりません。`;
+}
+
 /** 日本時間の今日を YYYY-MM-DD で返す（サーバーの TZ 設定に依存しない） */
 export function todayKeyJST(now: Date = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {
@@ -23,7 +37,8 @@ export function maxDateKeyJST(now: Date = new Date()): string {
   const nm = m === 12 ? 1 : m + 1;
   const lastDay = new Date(ny, nm, 0).getDate();
   const nd = Math.min(d, lastDay);
-  return `${ny}-${String(nm).padStart(2, "0")}-${String(nd).padStart(2, "0")}`;
+  const oneMonth = `${ny}-${String(nm).padStart(2, "0")}-${String(nd).padStart(2, "0")}`;
+  return BOOKING_LAST_DATE && BOOKING_LAST_DATE < oneMonth ? BOOKING_LAST_DATE : oneMonth;
 }
 
 /** YYYY-MM-DD が予約可能期間内か */
