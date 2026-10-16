@@ -220,9 +220,8 @@ export default async function Home() {
               </p>
             </div>
             <div className="text-center">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6 bg-white">
-                <Image src="/images/Soccer_field_diagram.png" alt="YS-BASE 施設配置図" fill className="object-contain p-2" />
-              </div>
+              {/* 施設配置図は差し替え予定のため、いったん空白にしている（元: /images/Soccer_field_diagram.png） */}
+              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6 bg-white" />
               <h3 className="text-lg font-bold text-primary mb-2">充実した施設環境</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
                 約6,100㎡の広大な敷地に、メインコートとサブコートの2面を完備しています。
