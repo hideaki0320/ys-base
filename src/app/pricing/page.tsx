@@ -135,7 +135,6 @@ export default function PricingPage() {
               {[
                 "上記料金はコート1面あたりの料金です。",
                 "ナイター利用（18:00〜21:00）は照明費を含む料金です。",
-                "連続利用の場合は割引がございます。詳しくはお問い合わせください。",
                 "料金は予告なく変更される場合がございます。",
               ].map((text) => (
                 <li key={text} className="flex items-start gap-2">
