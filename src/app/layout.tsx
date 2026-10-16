@@ -119,7 +119,7 @@ export default function RootLayout({
       { "@type": "LocationFeatureSpecification", name: "ナイター照明", value: true },
     ],
     image: `${SITE_URL}/images/hero_img.png`,
-    priceRange: "¥5,500〜¥16,500",
+    priceRange: "¥8,800〜¥16,500",
     parentOrganization: {
       "@type": "SportsTeam",
       name: "Y.S.C.C.横浜",
