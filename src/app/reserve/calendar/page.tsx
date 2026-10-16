@@ -17,7 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import { getAvailableSlots, formatPrice, formatTimeSlot } from "@/lib/pricing";
-import { todayKeyJST, maxDateKeyJST, BOOKING_WINDOW_LABEL, bookingLastDateNote } from "@/lib/booking-window";
+import { todayKeyJST, maxDateKeyJST, bookingNotes, isMaintenanceDay } from "@/lib/booking-window";
 import { CANCEL_POLICY, EXIT_NOTICE } from "@/lib/booking-notice";
 
 type Step = "date" | "slots" | "form" | "confirm";
@@ -182,6 +182,7 @@ export default function ReservationCalendarPage() {
   function isDateSelectable(date: Date): boolean {
     if (date < today) return false;
     if (date >= maxDate) return false;
+    if (isMaintenanceDay(toDateKey(date))) return false;
     const slots = getAvailableSlots(date);
     if (slots.length === 0) return false;
     return !isFullyBooked(date);
@@ -342,10 +343,9 @@ export default function ReservationCalendarPage() {
                 予約不可・営業日外
               </span>
             </div>
-            <p className="mt-2 text-xs text-gray-500">※{BOOKING_WINDOW_LABEL}予約できます。</p>
-            {bookingLastDateNote() && (
-              <p className="mt-1 text-xs text-gray-500">※{bookingLastDateNote()}</p>
-            )}
+            {bookingNotes().map((note, i) => (
+              <p key={note} className={`${i === 0 ? "mt-2" : "mt-1"} text-xs text-gray-500`}>※{note}</p>
+            ))}
           </div>
         )}
 

@@ -3,6 +3,10 @@ import Link from "next/link";
 import { ChevronRight, CircleAlert } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { CANCEL_POLICY, EXIT_NOTICE, RAIN_CANCEL_NOTICE } from "@/lib/booking-notice";
+import { bookingNotes } from "@/lib/booking-window";
+
+// 注記（プレオープン・メンテナンス休業日）の表示期限を反映するため、1時間ごとに作り直す
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   alternates: { canonical: "/reserve" },
@@ -101,6 +105,12 @@ export default function ReservePage() {
                   <span className="w-1 h-1 bg-accent rounded-full shrink-0 mt-2" />
                   ご利用日の1ヶ月前（同じ日付）から申し込み可能
                 </li>
+                {bookingNotes().map((note) => (
+                  <li key={note} className="flex items-start gap-2 text-primary font-medium">
+                    <span className="w-1 h-1 bg-accent rounded-full shrink-0 mt-2" />
+                    {note}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
