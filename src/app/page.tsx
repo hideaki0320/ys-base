@@ -230,7 +230,7 @@ export default async function Home() {
             </div>
             <div className="text-center">
               <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
-                <Image src="/images/parking_img.png" alt="YS-BASE 無料駐車場" fill className="object-cover" />
+                <Image src="/images/facility/parking-lot.jpg" alt="YS-BASE 無料駐車場" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
               </div>
               <h3 className="text-lg font-bold text-primary mb-2">30台の無料駐車場</h3>
               <p className="text-sm text-gray-500 leading-relaxed">

@@ -482,7 +482,7 @@ export default function ReservationCalendarPage() {
                   value={data.teamName}
                   onChange={(e) => setData((d) => ({ ...d, teamName: e.target.value }))}
                   maxLength={100}
-                  placeholder="例：瀬谷FCジュニア"
+                  placeholder="例：Y.S.C.C."
                   className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                 />
               </div>

@@ -334,7 +334,7 @@ export default function FacilityPage() {
             <div className="group">
               <div className="relative aspect-[4/3] overflow-hidden rounded-sm mb-5">
                 <Image
-                  src="/images/facility/parking.jpg"
+                  src="/images/facility/parking-lot.jpg"
                   alt="YS-BASE 無料駐車場（30台・砂利敷）"
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
