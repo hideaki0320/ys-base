@@ -1,0 +1,25 @@
+# 依存パッケージの自動更新（Dependabot）
+#
+# - 脆弱性の修正（セキュリティ更新）は、見つかりしだい個別の PR が届く。
+#   これはリポジトリの Settings → Code security で
+#   「Dependabot alerts」と「Dependabot security updates」を有効にすると動く
+# - 通常の更新は毎週月曜の朝にまとめて1本の PR にする（PR が増えすぎないように）
+# - 公開されたばかりの版は3日待ってから提案する。乗っ取られた版が出回っても、
+#   数日で取り下げられることが多いため（2026年の npm の連続攻撃への備え）。
+#   セキュリティ更新はこの待ち時間の対象外
+# - PR は自動では取り込まない。ビルドが通るのを確かめてから人がマージする
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
