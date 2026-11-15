@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
+import { timingSafeEqual } from "node:crypto";
 import { configuredKeys, withStripe } from "@/lib/stripe";
 
 /**
@@ -17,6 +18,7 @@ import { configuredKeys, withStripe } from "@/lib/stripe";
 const API_VERSION = "2026-07-29.dahlia" as const;
 const RECONCILE_DAYS = 3;
 const WEBHOOK_GRACE_MS = 30 * 60 * 1000; // 決済直後は webhook の処理待ちなので対象外にする
+const MAX_SESSIONS_SCANNED = 2000; // 他アプリと共用のアカウントなので、読む件数に上限を付ける
 
 interface Check {
   name: string;
@@ -27,8 +29,10 @@ interface Check {
 
 function authorized(request: Request): boolean {
   const token = process.env.HEALTH_CHECK_TOKEN;
-  const auth = request.headers.get("authorization");
-  return !!token && auth === `Bearer ${token}`;
+  if (!token) return false;
+  const a = Buffer.from(request.headers.get("authorization") ?? "");
+  const b = Buffer.from(`Bearer ${token}`);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 async function checkStripeKey(label: string, key: string | undefined): Promise<Check> {
@@ -82,8 +86,14 @@ async function checkReconciliation(): Promise<Check> {
 
     // 同じ Stripe アカウントを他のアプリ（チケット販売）と共用しているので、YS-BASE の決済（metadata に date と slots がある）だけを見る
     const paidSessionIds: string[] = [];
+    let scanned = 0;
+    let truncated = false;
     await withStripe(async (stripe) => {
       for await (const s of stripe.checkout.sessions.list({ created: { gte: since }, status: "complete", limit: 100 })) {
+        if (++scanned > MAX_SESSIONS_SCANNED) {
+          truncated = true;
+          break;
+        }
         if (s.payment_status !== "paid") continue;
         if (!s.metadata?.date || !s.metadata?.slots) continue;
         if (s.created > graceEdge) continue;
@@ -93,20 +103,29 @@ async function checkReconciliation(): Promise<Check> {
     if (paidSessionIds.length === 0) return { ...base, ok: true, detail: `直近${RECONCILE_DAYS}日の YS-BASE の決済なし` };
 
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
-    const { data, error } = await supabase
-      .from("ysbase_reservations")
-      .select("stripe_session_id")
-      .in("stripe_session_id", paidSessionIds);
-    if (error) return { ...base, ok: false, detail: "予約データを読めませんでした" };
+    // URL の長さ制限に当たらないよう 50 件ずつ問い合わせる
+    const found = new Set<string>();
+    for (let i = 0; i < paidSessionIds.length; i += 50) {
+      const { data, error } = await supabase
+        .from("ysbase_reservations")
+        .select("stripe_session_id")
+        .in("stripe_session_id", paidSessionIds.slice(i, i + 50));
+      if (error) return { ...base, ok: false, detail: "予約データを読めませんでした" };
+      (data ?? []).forEach((r) => found.add(r.stripe_session_id));
+    }
 
-    const found = new Set((data ?? []).map((r) => r.stripe_session_id));
     const missing = paidSessionIds.filter((id) => !found.has(id));
     if (missing.length > 0) {
+      // 決済 ID の全文は応答に出さず、サーバーのログにだけ残す
+      console.error("[health] 支払い済みで予約がない決済:", missing.join(", "));
       return {
         ...base,
         ok: false,
-        detail: `支払い済みなのに予約がない決済が ${missing.length} 件あります（Stripe の決済 ID: ${missing.join(", ")}）`,
+        detail: `支払い済みなのに予約がない決済が ${missing.length} 件あります（決済 ID の末尾: ${missing.map((id) => id.slice(-8)).join(", ")}。全文は Railway のログ）`,
       };
+    }
+    if (truncated) {
+      return { ...base, ok: false, detail: `決済が多すぎて全件を確認できませんでした（${MAX_SESSIONS_SCANNED} 件で打ち切り）` };
     }
     return { ...base, ok: true, detail: `直近${RECONCILE_DAYS}日の決済 ${paidSessionIds.length} 件はすべて予約あり` };
   } catch (e) {
