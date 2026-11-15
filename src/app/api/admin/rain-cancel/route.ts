@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import Stripe from "stripe";
+import { withStripe } from "@/lib/stripe";
 import { sendMail } from "@/lib/mail";
 import { fillRainTemplate } from "@/lib/reservation-mail";
 
@@ -22,11 +22,6 @@ function getSupabase() {
   );
 }
 
-function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2026-07-29.dahlia",
-  });
-}
 
 function authorize(request: Request): boolean {
   const authHeader = request.headers.get("authorization");
@@ -101,7 +96,6 @@ export async function POST(request: Request) {
   const mailTargets = new Set(mail?.sessionIds || []);
 
   const supabase = getSupabase();
-  const stripe = getStripe();
   const results: SessionResult[] = [];
 
   // 0. 先に全枠を停止する（キャンセル処理中に空いた枠へ新しい予約が入らないように）
@@ -157,13 +151,15 @@ export async function POST(request: Request) {
           (sum, r) => sum + (r.total_price ?? 0) - (r.discount_amount ?? 0),
           0
         );
-        const refund = await stripe.refunds.create(
-          {
-            payment_intent: paymentIntent,
-            reason: "requested_by_customer",
-            ...((keptCount ?? 0) > 0 ? { amount: targetAmount } : {}),
-          },
-          { idempotencyKey: `ysbase-rain-${sessionId}` }
+        const refund = await withStripe((stripe) =>
+          stripe.refunds.create(
+            {
+              payment_intent: paymentIntent,
+              reason: "requested_by_customer",
+              ...((keptCount ?? 0) > 0 ? { amount: targetAmount } : {}),
+            },
+            { idempotencyKey: `ysbase-rain-${sessionId}` }
+          )
         );
         if (refund.status === "failed" || refund.status === "canceled") {
           result.error = `返金が ${refund.status} になったためキャンセルしていません。Stripe で確認してください`;

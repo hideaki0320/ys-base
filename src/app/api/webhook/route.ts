@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { withStripe, stripeForWebhookVerification } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getPrice } from "@/lib/pricing";
 import { sendMail } from "@/lib/mail";
 import { buildAdminBookingMail, buildConfirmationMail, type AdminMailReservationRow } from "@/lib/reservation-mail";
 
-function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2026-07-29.dahlia",
-  });
-}
 
 function getSupabase() {
   return createClient(
@@ -19,7 +15,6 @@ function getSupabase() {
 }
 
 async function getDiscountInfo(
-  stripe: Stripe,
   session: Stripe.Checkout.Session
 ): Promise<{ promotionCode: string | null; discountAmount: number }> {
   const sessionAny = session as unknown as { total_details?: { amount_discount?: number } };
@@ -31,9 +26,11 @@ async function getDiscountInfo(
 
   let promotionCode: string | null = null;
   try {
-    const retrieved = await stripe.checkout.sessions.retrieve(session.id, {
-      expand: ["discounts.promotion_code"],
-    });
+    const retrieved = await withStripe((stripe) =>
+      stripe.checkout.sessions.retrieve(session.id, {
+        expand: ["discounts.promotion_code"],
+      })
+    );
     const discounts = (
       retrieved as unknown as { discounts?: Array<{ promotion_code?: { code?: string }; coupon?: { name?: string } }> }
     ).discounts;
@@ -62,10 +59,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No signature" }, { status: 400 });
   }
 
-  const stripe = getStripe();
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = stripeForWebhookVerification().webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
@@ -114,7 +110,7 @@ export async function POST(request: Request) {
       const slots: number[] = JSON.parse(meta.slots);
       const reservationDate = new Date(meta.date + "T00:00:00");
 
-      const { promotionCode, discountAmount } = await getDiscountInfo(stripe, session);
+      const { promotionCode, discountAmount } = await getDiscountInfo(session);
       if (discountAmount > 0) {
         console.log("[webhook] Discount applied:", discountAmount, "code:", promotionCode);
       }

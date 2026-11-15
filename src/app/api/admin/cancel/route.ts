@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
+import { withStripe } from "@/lib/stripe";
 
 function getSupabase() {
   return createClient(
@@ -9,11 +10,6 @@ function getSupabase() {
   );
 }
 
-function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2026-07-29.dahlia",
-  });
-}
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization");
@@ -59,11 +55,11 @@ export async function POST(request: Request) {
   if (refund === true && reservation.stripe_payment_intent_id) {
     const slotAmount = (reservation.total_price ?? 0) - (reservation.discount_amount ?? 0);
     try {
-      const stripe = getStripe();
       // Stripe 画面で一部返金済みの決済は、ここから返金すると金額がずれるので受け付けない
-      const pi = await stripe.paymentIntents.retrieve(reservation.stripe_payment_intent_id, {
-        expand: ["latest_charge"],
-      });
+      const paymentIntentId = reservation.stripe_payment_intent_id as string;
+      const pi = await withStripe((stripe) =>
+        stripe.paymentIntents.retrieve(paymentIntentId, { expand: ["latest_charge"] })
+      );
       const charge = pi.latest_charge as Stripe.Charge | null;
       const refundedSoFar = charge?.amount_refunded ?? 0;
 
@@ -109,9 +105,11 @@ export async function POST(request: Request) {
       if (refundAmount <= 0) {
         return NextResponse.json({ error: "この枠の支払額が 0 円のため返金できません。「返金なしでキャンセル」を使ってください" }, { status: 400 });
       }
-      const refundObj = await stripe.refunds.create(
-        { payment_intent: reservation.stripe_payment_intent_id, amount: refundAmount },
-        { idempotencyKey: `ysbase-admin-cancel-${reservationId}` }
+      const refundObj = await withStripe((stripe) =>
+        stripe.refunds.create(
+          { payment_intent: paymentIntentId, amount: refundAmount },
+          { idempotencyKey: `ysbase-admin-cancel-${reservationId}` }
+        )
       );
       if (refundObj.status === "failed" || refundObj.status === "canceled") {
         return NextResponse.json(

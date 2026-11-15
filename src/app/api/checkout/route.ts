@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import { withStripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getPrice } from "@/lib/pricing";
 import { isWithinBookingWindow } from "@/lib/booking-window";
@@ -9,11 +9,6 @@ import { SITE_URL } from "@/lib/site";
 const RETURN_BASE =
   process.env.NODE_ENV === "production" ? SITE_URL : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2026-07-29.dahlia",
-  });
-}
 
 export async function POST(request: Request) {
   try {
@@ -58,8 +53,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const stripe = getStripe();
-    const session = await stripe.checkout.sessions.create({
+    const session = await withStripe((stripe) => stripe.checkout.sessions.create({
       payment_method_types: ["card", "paypay"],
       mode: "payment",
       allow_promotion_codes: true,
@@ -89,7 +83,7 @@ export async function POST(request: Request) {
       },
       success_url: `${RETURN_BASE}/reserve/complete?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${RETURN_BASE}/reserve/calendar`,
-    });
+    }));
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
