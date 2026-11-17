@@ -11,21 +11,24 @@ export const BOOKING_WINDOW_LABEL = "1ヶ月先（同じ日付）まで";
  * 設定中は「1ヶ月先まで」の制限を使わず、この日まで予約できる。この日より後は選べない・予約できない。
  * 受付を通常運用に戻すときは null にする（1ヶ月先までの制限に戻る）。
  */
-export const BOOKING_LAST_DATE: string | null = "2026-11-20";
+export const BOOKING_LAST_DATE: string | null = null; // プレオープン（〜2026-11-20）終了。2026-11-17 に通常の受付へ戻した
 
-/** 芝生メンテナンスで利用できない曜日（until の日まで）。0=日 … 6=土 */
-export const MAINTENANCE_CLOSURE = {
-  until: "2026-11-20",
+/**
+ * 芝生メンテナンスで利用できない曜日。0=日 … 6=土
+ * until が null なら期限なし（毎週）。期間を区切るときは "YYYY-MM-DD" を入れる（その日まで休み）。
+ */
+export const MAINTENANCE_CLOSURE: { until: string | null; weekdays: readonly number[]; note: string } = {
+  until: null,
   weekdays: [2, 5], // 火・金
-  note: "11月20日までの火曜日・金曜日は、芝生のメンテナンスのためご利用いただけません。",
-} as const;
+  note: "毎週火曜日・金曜日は、芝生のメンテナンスのためご利用いただけません。",
+};
 
 /** YYYY-MM-DD が芝生メンテナンスの休業日か */
 export function isMaintenanceDay(dateKey: string): boolean {
-  if (dateKey > MAINTENANCE_CLOSURE.until) return false;
+  if (MAINTENANCE_CLOSURE.until && dateKey > MAINTENANCE_CLOSURE.until) return false;
   const [y, m, d] = dateKey.split("-").map(Number);
   const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-  return (MAINTENANCE_CLOSURE.weekdays as readonly number[]).includes(dow);
+  return MAINTENANCE_CLOSURE.weekdays.includes(dow);
 }
 
 /** カレンダー・予約方法ページに出す注記 */
@@ -37,7 +40,7 @@ export function bookingNotes(now: Date = new Date()): string[] {
   } else {
     notes.push(`${BOOKING_WINDOW_LABEL}予約できます。`);
   }
-  if (todayKeyJST(now) <= MAINTENANCE_CLOSURE.until) notes.push(MAINTENANCE_CLOSURE.note);
+  if (!MAINTENANCE_CLOSURE.until || todayKeyJST(now) <= MAINTENANCE_CLOSURE.until) notes.push(MAINTENANCE_CLOSURE.note);
   return notes;
 }
 
