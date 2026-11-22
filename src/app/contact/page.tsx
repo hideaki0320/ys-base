@@ -88,7 +88,7 @@ export default function ContactPage() {
                   id="name"
                   name="name"
                   required
-                  className="w-full border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
+                  className="w-full border border-gray-200 px-4 py-3 text-sm max-lg:text-base rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
               <div>
@@ -99,7 +99,7 @@ export default function ContactPage() {
                   type="text"
                   id="org"
                   name="org"
-                  className="w-full border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
+                  className="w-full border border-gray-200 px-4 py-3 text-sm max-lg:text-base rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
             </div>
@@ -114,7 +114,7 @@ export default function ContactPage() {
                   id="email"
                   name="email"
                   required
-                  className="w-full border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
+                  className="w-full border border-gray-200 px-4 py-3 text-sm max-lg:text-base rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
               <div>
@@ -125,7 +125,7 @@ export default function ContactPage() {
                   type="tel"
                   id="phone"
                   name="phone"
-                  className="w-full border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
+                  className="w-full border border-gray-200 px-4 py-3 text-sm max-lg:text-base rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
             </div>
@@ -138,7 +138,7 @@ export default function ContactPage() {
                 id="category"
                 name="category"
                 required
-                className="w-full border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
+                className="w-full border border-gray-200 px-4 py-3 text-sm max-lg:text-base rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all bg-gray-50 focus:bg-white"
               >
                 <option value="">選択してください</option>
                 <option value="reservation">予約について</option>
@@ -157,7 +157,7 @@ export default function ContactPage() {
                 name="message"
                 required
                 rows={6}
-                className="w-full border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all resize-vertical bg-gray-50 focus:bg-white"
+                className="w-full border border-gray-200 px-4 py-3 text-sm max-lg:text-base rounded-sm focus:border-accent focus:ring-1 focus:ring-accent/30 outline-none transition-all resize-vertical bg-gray-50 focus:bg-white"
               />
             </div>
 

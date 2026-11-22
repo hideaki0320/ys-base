@@ -470,7 +470,7 @@ export function RainCancelPanel({ apiKey }: { apiKey: string }) {
                     <div key={b.sessionId} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
                       <span className="font-bold">{b.name}</span>
                       <span className="text-xs text-gray-500">{b.rows.map((r) => formatTimeSlot(r.slot_hour)).join("、")}</span>
-                      <span className="text-xs text-gray-500 flex-1">
+                      <span className="text-xs text-gray-500 flex-1 max-lg:min-w-[8rem]">
                         {b.mailScheduledAt
                           ? canUndo
                             ? `メール ${formatTimeJP(b.mailScheduledAt)} に送信予定`

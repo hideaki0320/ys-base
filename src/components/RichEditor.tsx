@@ -127,7 +127,7 @@ export function RichEditor({ value, onChange, apiKey }: RichEditorProps) {
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       title={title}
-      className={`p-1.5 rounded-sm transition-colors ${active ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"}`}
+      className={`p-1.5 max-lg:min-w-10 max-lg:flex max-lg:items-center max-lg:justify-center rounded-sm transition-colors ${active ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"}`}
     >
       {children}
     </button>

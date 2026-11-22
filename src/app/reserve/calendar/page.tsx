@@ -266,7 +266,7 @@ export default function ReservationCalendarPage() {
               <button
                 onClick={prevMonth}
                 disabled={!canGoPrev}
-                className="p-2 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 max-lg:p-2.5 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 aria-label="前の月"
               >
                 <ChevronLeft size={20} />
@@ -277,7 +277,7 @@ export default function ReservationCalendarPage() {
               <button
                 onClick={nextMonth}
                 disabled={!canGoNext}
-                className="p-2 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 max-lg:p-2.5 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 aria-label="次の月"
               >
                 <ChevronRight size={20} />
@@ -354,7 +354,7 @@ export default function ReservationCalendarPage() {
           <div className="bg-white border border-gray-200 p-6 sm:p-8">
             <button
               onClick={() => setStep("date")}
-              className="flex items-center gap-1 text-sm text-gray-500 hover:text-primary mb-4 transition-colors"
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-primary mb-4 transition-colors max-lg:min-h-10"
             >
               <ChevronLeft size={16} />
               日程選択に戻る
@@ -450,7 +450,7 @@ export default function ReservationCalendarPage() {
           <div className="bg-white border border-gray-200 p-6 sm:p-8">
             <button
               onClick={() => setStep("slots")}
-              className="flex items-center gap-1 text-sm text-gray-500 hover:text-primary mb-4 transition-colors"
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-primary mb-4 transition-colors max-lg:min-h-10"
             >
               <ChevronLeft size={16} />
               時間選択に戻る
@@ -468,7 +468,7 @@ export default function ReservationCalendarPage() {
                   value={data.name}
                   onChange={(e) => setData((d) => ({ ...d, name: e.target.value }))}
                   required
-                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                  className="w-full border border-gray-300 px-4 py-3 text-sm max-lg:text-base focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                 />
               </div>
               <div>
@@ -483,7 +483,7 @@ export default function ReservationCalendarPage() {
                   onChange={(e) => setData((d) => ({ ...d, teamName: e.target.value }))}
                   maxLength={100}
                   placeholder="例：Y.S.C.C."
-                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                  className="w-full border border-gray-300 px-4 py-3 text-sm max-lg:text-base focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                 />
               </div>
               <div>
@@ -497,7 +497,7 @@ export default function ReservationCalendarPage() {
                   value={data.email}
                   onChange={(e) => setData((d) => ({ ...d, email: e.target.value }))}
                   required
-                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                  className="w-full border border-gray-300 px-4 py-3 text-sm max-lg:text-base focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                 />
               </div>
               <div>
@@ -511,7 +511,7 @@ export default function ReservationCalendarPage() {
                   value={data.phone}
                   onChange={(e) => setData((d) => ({ ...d, phone: e.target.value }))}
                   required
-                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                  className="w-full border border-gray-300 px-4 py-3 text-sm max-lg:text-base focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                 />
               </div>
               <div>
@@ -525,7 +525,7 @@ export default function ReservationCalendarPage() {
                   value={data.address}
                   onChange={(e) => setData((d) => ({ ...d, address: e.target.value }))}
                   placeholder="例：神奈川県横浜市瀬谷区..."
-                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                  className="w-full border border-gray-300 px-4 py-3 text-sm max-lg:text-base focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                 />
               </div>
               <div>
@@ -537,7 +537,7 @@ export default function ReservationCalendarPage() {
                   id="res-purpose"
                   value={data.purpose}
                   onChange={(e) => setData((d) => ({ ...d, purpose: e.target.value }))}
-                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none bg-white"
+                  className="w-full border border-gray-300 px-4 py-3 text-sm max-lg:text-base focus:border-accent focus:ring-1 focus:ring-accent outline-none bg-white"
                 >
                   <option value="">選択してください</option>
                   <option value="練習">練習</option>
@@ -557,7 +557,7 @@ export default function ReservationCalendarPage() {
                   onChange={(e) => setData((d) => ({ ...d, notes: e.target.value }))}
                   rows={3}
                   placeholder="ご要望やご質問などがあればご記入ください"
-                  className="w-full border border-gray-300 px-4 py-3 text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none resize-vertical"
+                  className="w-full border border-gray-300 px-4 py-3 text-sm max-lg:text-base focus:border-accent focus:ring-1 focus:ring-accent outline-none resize-vertical"
                 />
               </div>
             </div>
@@ -583,7 +583,7 @@ export default function ReservationCalendarPage() {
           <div className="bg-white border border-gray-200 p-6 sm:p-8">
             <button
               onClick={() => setStep("form")}
-              className="flex items-center gap-1 text-sm text-gray-500 hover:text-primary mb-4 transition-colors"
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-primary mb-4 transition-colors max-lg:min-h-10"
             >
               <ChevronLeft size={16} />
               情報入力に戻る

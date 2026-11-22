@@ -160,7 +160,7 @@ export default function ReservePage() {
           <div className="text-center">
             <Link
               href="/pricing"
-              className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors"
+              className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors max-lg:min-h-10"
             >
               利用料金の詳細を見る
               <ChevronRight size={16} />

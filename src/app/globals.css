@@ -113,3 +113,36 @@ html {
   height: 2px;
   background: linear-gradient(90deg, var(--color-accent), transparent);
 }
+
+/* ---------------------------------------------------------------
+ * 管理画面（/admin）をスマホで使えるようにする共通の決まり（2026-11-22）
+ *  - 入力欄の文字が 16px 未満だと、iPhone は入力のたびに画面を拡大してしまう
+ *  - ボタン・電話/メールのリンクは指で押せる高さ（40px 以上）にする
+ *  - grid の子は既定で中身より狭くなれず、長い文字があると画面からはみ出す
+ * PC 幅（1024px 以上）の見た目は変えない。
+ * ------------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .admin-root .grid > * {
+    min-width: 0;
+  }
+  .admin-root :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select) {
+    font-size: 16px !important;
+  }
+  .admin-root :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select) {
+    min-height: 40px;
+  }
+  .admin-root :is(button, [role="button"]) {
+    min-height: 40px;
+  }
+  .admin-root [contenteditable="true"] {
+    font-size: 16px;
+  }
+  .admin-root :is(a[href^="tel:"], a[href^="mailto:"]) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+  .admin-root label:has(> input[type="checkbox"], > input[type="radio"]) {
+    min-height: 40px;
+  }
+}

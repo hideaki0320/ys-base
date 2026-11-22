@@ -71,7 +71,7 @@ export default async function NewsArticlePage({ params }: { params: Params }) {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <Link
           href="/news"
-          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary mb-8 transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary mb-8 transition-colors max-lg:min-h-10"
         >
           <ChevronLeft size={16} />
           お知らせ一覧に戻る
@@ -102,7 +102,7 @@ export default async function NewsArticlePage({ params }: { params: Params }) {
           <div className="bg-white border border-gray-200 p-6 sm:p-10">
             {article.body ? (
               <div
-                className="prose prose-sm max-w-none prose-headings:text-primary prose-a:text-accent prose-img:rounded prose-img:max-w-full"
+                className="prose prose-sm max-w-none prose-headings:text-primary prose-a:text-accent prose-img:rounded prose-img:max-w-full max-lg:[overflow-wrap:anywhere] max-lg:[&_table]:block max-lg:[&_table]:max-w-full max-lg:[&_table]:overflow-x-auto max-lg:[&_img]:max-w-full max-lg:[&_img]:h-auto"
                 dangerouslySetInnerHTML={{
                   __html: article.body.includes("<") ? article.body : article.body.replace(/\n/g, "<br />"),
                 }}
@@ -118,7 +118,7 @@ export default async function NewsArticlePage({ params }: { params: Params }) {
         <div className="mt-12 text-center">
           <Link
             href="/news"
-            className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition-colors max-lg:min-h-10"
           >
             <ChevronLeft size={16} />
             お知らせ一覧に戻る

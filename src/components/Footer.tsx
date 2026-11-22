@@ -35,7 +35,7 @@ export function Footer() {
         <div className="py-12 sm:py-16 grid grid-cols-1 md:grid-cols-12 gap-10">
           {/* Brand */}
           <div className="md:col-span-5">
-            <Link href="/" className="inline-flex items-center gap-3 mb-5">
+            <Link href="/" className="inline-flex items-center gap-3 mb-5 max-lg:min-h-10">
               <Image
                 src="/images/icon-512.png"
                 alt="YSCC"
@@ -61,7 +61,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone size={14} className="shrink-0 text-accent/60" />
-                <a href="tel:070-8710-1234" className="hover:text-white transition-colors">
+                <a href="tel:070-8710-1234" className="hover:text-white transition-colors max-lg:inline-flex max-lg:items-center max-lg:min-h-10">
                   070-8710-1234
                 </a>
               </div>
@@ -73,12 +73,12 @@ export function Footer() {
             <h4 className="text-[11px] font-bold text-white/40 tracking-[0.2em] mb-5 uppercase">
               Menu
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-2.5 max-lg:space-y-0">
               {menuLinks.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-sm text-white/60 hover:text-white transition-colors inline-flex items-center gap-1"
+                    className="text-sm text-white/60 hover:text-white transition-colors inline-flex items-center gap-1 max-lg:min-h-10"
                   >
                     {item.label}
                   </Link>
@@ -92,7 +92,7 @@ export function Footer() {
             <h4 className="text-[11px] font-bold text-white/40 tracking-[0.2em] mb-5 uppercase">
               Legal
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-2.5 max-lg:space-y-0">
               {[
                 { href: "/terms", label: "利用規約" },
                 { href: "/tokushoho", label: "特商法表記" },
@@ -101,7 +101,7 @@ export function Footer() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-sm text-white/60 hover:text-white transition-colors inline-flex items-center gap-1"
+                    className="text-sm text-white/60 hover:text-white transition-colors inline-flex items-center gap-1 max-lg:min-h-10"
                   >
                     {item.label}
                   </Link>
@@ -133,13 +133,13 @@ export function Footer() {
         <div className="border-t border-white/5 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-white/30">
           <p>&copy; {new Date().getFullYear()} YS-BASE / Y.S.C.C.横浜</p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="hover:text-white/60 transition-colors">
+            <Link href="/privacy" className="hover:text-white/60 transition-colors max-lg:inline-flex max-lg:items-center max-lg:min-h-10">
               プライバシーポリシー
             </Link>
-            <Link href="/terms" className="hover:text-white/60 transition-colors">
+            <Link href="/terms" className="hover:text-white/60 transition-colors max-lg:inline-flex max-lg:items-center max-lg:min-h-10">
               利用規約
             </Link>
-            <Link href="/tokushoho" className="hover:text-white/60 transition-colors">
+            <Link href="/tokushoho" className="hover:text-white/60 transition-colors max-lg:inline-flex max-lg:items-center max-lg:min-h-10">
               特定商取引法
             </Link>
           </div>

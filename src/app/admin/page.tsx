@@ -644,7 +644,7 @@ export default function AdminPage() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      <div className="admin-root min-h-screen bg-gray-100 flex items-center justify-center px-4">
         <div className="bg-white p-8 border border-gray-200 rounded-sm max-w-sm w-full">
           <h1 className="text-xl font-black text-gray-900 mb-2">YS-BASE 管理画面</h1>
           <p className="text-sm text-gray-500 mb-6">管理用 API キーを入力してください</p>
@@ -671,7 +671,7 @@ export default function AdminPage() {
   /* ═══ MAIN LAYOUT ═══ */
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="admin-root min-h-screen bg-gray-100">
       {/* Header + Tabs */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
@@ -739,11 +739,11 @@ export default function AdminPage() {
                     <option value="cancelled">キャンセル</option>
                   </select>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CalendarDays size={16} className="text-gray-400" />
-                  <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm rounded-sm" />
+                <div className="flex items-center gap-2 max-lg:w-full">
+                  <CalendarDays size={16} className="text-gray-400 shrink-0" />
+                  <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm rounded-sm max-lg:flex-1 max-lg:min-w-0" />
                   <span className="text-gray-400">〜</span>
-                  <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm rounded-sm" />
+                  <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="border border-gray-300 px-3 py-2 text-sm rounded-sm max-lg:flex-1 max-lg:min-w-0" />
                 </div>
                 <div className="flex items-center gap-2 flex-1 min-w-[200px]">
                   <Search size={16} className="text-gray-400" />
@@ -773,12 +773,12 @@ export default function AdminPage() {
                         const isCancelling = cancellingId === r.id;
                         return (
                           <div key={r.id}>
-                            <button onClick={() => setExpandedId(isExpanded ? null : r.id)} className="w-full px-4 py-3 flex items-center gap-4 hover:bg-gray-50 transition-colors text-left">
+                            <button onClick={() => setExpandedId(isExpanded ? null : r.id)} className="w-full px-4 py-3 flex items-center gap-4 max-lg:gap-2 hover:bg-gray-50 transition-colors text-left">
                               <span className="text-sm font-mono text-gray-600 w-24 shrink-0">{formatSlot(r.slot_hour)}</span>
                               <span className={`text-xs font-bold px-2 py-0.5 border rounded-sm shrink-0 ${statusCfg.color}`}>
                                 <StatusIcon size={12} className="inline mr-1" />{statusCfg.label}
                               </span>
-                              <span className="text-sm font-medium text-gray-800 truncate">{r.customer_name}</span>
+                              <span className="text-sm font-medium text-gray-800 truncate min-w-0">{r.customer_name}</span>
                               <span className="text-sm text-gray-500 truncate hidden sm:inline">{r.customer_email}</span>
                               {r.promotion_code && (
                                 <span className="text-[11px] font-bold px-1.5 py-0.5 border border-purple-200 bg-purple-50 text-purple-700 rounded-sm shrink-0 hidden sm:inline-flex items-center gap-0.5">
@@ -941,7 +941,7 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <p className="text-xs font-bold text-gray-500 mb-3">期間指定</p>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 max-lg:flex-wrap">
                     <input
                       type="date"
                       value={rangeFrom}
@@ -958,7 +958,7 @@ export default function AdminPage() {
                     <button
                       onClick={applyRange}
                       disabled={!rangeFrom || !rangeTo}
-                      className="px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-sm hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 text-xs font-bold whitespace-nowrap bg-blue-600 text-white rounded-sm hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       選択に追加
                     </button>

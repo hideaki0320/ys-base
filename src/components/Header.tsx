@@ -35,7 +35,7 @@ export function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
+          <Link href="/" className="flex items-center gap-3 max-lg:min-h-10" onClick={() => setOpen(false)}>
             <Image
               src="/images/icon-512.png"
               alt="YSCC"

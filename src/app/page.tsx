@@ -172,7 +172,7 @@ export default async function Home() {
               </p>
               <Link
                 href="/facility"
-                className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors"
+                className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors max-lg:min-h-10"
               >
                 施設の詳細を見る
                 <ChevronRight size={16} />
@@ -274,7 +274,7 @@ export default async function Home() {
             <div className="text-center mt-10">
               <Link
                 href="/news"
-                className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors"
+                className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors max-lg:min-h-10"
               >
                 お知らせ一覧
                 <ChevronRight size={16} />
@@ -341,7 +341,7 @@ export default async function Home() {
               </div>
               <Link
                 href="/access"
-                className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors mt-2"
+                className="inline-flex items-center gap-1.5 text-accent hover:text-accent-dark text-sm font-bold transition-colors max-lg:min-h-10 mt-2"
               >
                 アクセスの詳細
                 <ChevronRight size={16} />
