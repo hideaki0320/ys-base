@@ -170,7 +170,7 @@ export default function FacilityPage() {
             {gallery.map((g) => (
               <div
                 key={g.src}
-                className={`relative aspect-[4/3] overflow-hidden rounded-sm group ${g.className}`}
+                className={`relative aspect-[4/3] overflow-hidden rounded-sm group ${g.className}`} style={{ position: "relative", overflow: "hidden", aspectRatio: "4 / 3" }}
               >
                 <Image
                   src={g.src}
@@ -190,7 +190,7 @@ export default function FacilityPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="relative">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-sm">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-sm" style={{ position: "relative", overflow: "hidden", aspectRatio: "4 / 3" }}>
                 <Image
                   src="/images/facility/pitch-sky.jpg"
                   alt="YS-BASE 青空の下に広がる天然芝のメインコート"
@@ -199,7 +199,7 @@ export default function FacilityPage() {
                   className="object-cover"
                 />
               </div>
-              <div className="absolute -bottom-6 -right-3 sm:-right-6 w-2/5 aspect-[4/3] overflow-hidden rounded-sm border-4 border-white shadow-xl">
+              <div className="absolute -bottom-6 -right-3 sm:-right-6 w-2/5 aspect-[4/3] overflow-hidden rounded-sm border-4 border-white shadow-xl" style={{ contain: "paint", aspectRatio: "4 / 3" }}>
                 <Image
                   src="/images/facility/play-2.jpg"
                   alt="YS-BASE 天然芝でボールを追う選手"
@@ -264,7 +264,7 @@ export default function FacilityPage() {
             </div>
 
             <div className="lg:col-span-7 order-1 lg:order-2 grid grid-cols-3 gap-2 sm:gap-3">
-              <div className="relative col-span-3 aspect-[16/10] overflow-hidden rounded-sm">
+              <div className="relative col-span-3 aspect-[16/10] overflow-hidden rounded-sm" style={{ position: "relative", overflow: "hidden", aspectRatio: "16 / 10" }}>
                 <Image
                   src="/images/facility/night-wide.jpg"
                   alt="YS-BASE ナイター照明に照らされた夜の天然芝コート"
@@ -273,7 +273,7 @@ export default function FacilityPage() {
                   className="object-cover"
                 />
               </div>
-              <div className="relative col-span-2 aspect-[4/3] overflow-hidden rounded-sm">
+              <div className="relative col-span-2 aspect-[4/3] overflow-hidden rounded-sm" style={{ position: "relative", overflow: "hidden", aspectRatio: "4 / 3" }}>
                 <Image
                   src="/images/facility/night-net.jpg"
                   alt="YS-BASE 照明と防球ネットに囲まれた夜のフィールド"
@@ -282,7 +282,7 @@ export default function FacilityPage() {
                   className="object-cover"
                 />
               </div>
-              <div className="relative overflow-hidden rounded-sm">
+              <div className="relative overflow-hidden rounded-sm" style={{ position: "relative", overflow: "hidden" }}>
                 <Image
                   src="/images/facility/night-grass.jpg"
                   alt="YS-BASE ナイター照明の下の天然芝"
@@ -309,7 +309,7 @@ export default function FacilityPage() {
           {/* 写真つき主要設備 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="group">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-sm mb-5">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-sm mb-5" style={{ position: "relative", overflow: "hidden", aspectRatio: "4 / 3" }}>
                 <Image
                   src="/images/facility/office.jpg"
                   alt="YS-BASE 事務所（受付）"
@@ -332,7 +332,7 @@ export default function FacilityPage() {
             </div>
 
             <div className="group">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-sm mb-5">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-sm mb-5" style={{ position: "relative", overflow: "hidden", aspectRatio: "4 / 3" }}>
                 <Image
                   src="/images/facility/parking-lot.jpg"
                   alt="YS-BASE 無料駐車場（30台・砂利敷）"
@@ -356,7 +356,7 @@ export default function FacilityPage() {
 
             <div className="group">
               <div className="grid grid-cols-2 gap-2 mb-5">
-                <div className="relative aspect-[2/3] overflow-hidden rounded-sm">
+                <div className="relative aspect-[2/3] overflow-hidden rounded-sm" style={{ position: "relative", overflow: "hidden", aspectRatio: "2 / 3" }}>
                   <Image
                     src="/images/facility/toilet.jpg"
                     alt="YS-BASE 施設内トイレ（洋式・温水洗浄便座）"
@@ -365,7 +365,7 @@ export default function FacilityPage() {
                     className="object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 </div>
-                <div className="relative aspect-[2/3] overflow-hidden rounded-sm">
+                <div className="relative aspect-[2/3] overflow-hidden rounded-sm" style={{ position: "relative", overflow: "hidden", aspectRatio: "2 / 3" }}>
                   <Image
                     src="/images/facility/water.jpg"
                     alt="YS-BASE コート脇の水道"
@@ -456,7 +456,7 @@ export default function FacilityPage() {
             <div className="lg:col-span-3">
               <p className="text-accent text-[10px] tracking-[0.3em] font-medium mb-3 uppercase">Site plan</p>
               <h2 className="text-2xl font-black text-primary mb-6 section-title">配置図</h2>
-              <div className="relative aspect-[16/11] overflow-hidden border border-gray-100 rounded-sm bg-white">
+              <div className="relative aspect-[16/11] overflow-hidden border border-gray-100 rounded-sm bg-white" style={{ position: "relative", overflow: "hidden", aspectRatio: "16 / 11" }}>
                 <Image
                   src="/images/site-plan.jpg"
                   alt="YS-BASE 配置図"

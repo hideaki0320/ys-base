@@ -61,7 +61,7 @@ export default async function Home() {
   return (
     <>
       {/* ─── Hero ─── */}
-      <section className="relative h-screen min-h-[600px] max-h-[960px]">
+      <section className="relative h-screen min-h-[600px] max-h-[960px]" style={{ position: "relative", overflow: "hidden" }}>
         <Image
           src="/images/hero_img.png"
           alt="YS-BASE サッカーコート"
@@ -179,7 +179,7 @@ export default async function Home() {
               </Link>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-sm">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-sm" style={{ position: "relative", overflow: "hidden", aspectRatio: "3 / 4" }}>
                 <Image
                   src="/images/image1.png"
                   alt="YS-BASE 天然芝でのサッカー練習風景"
@@ -187,7 +187,7 @@ export default async function Home() {
                   className="object-cover hover:scale-105 transition-transform duration-700"
                 />
               </div>
-              <div className="relative aspect-[3/4] overflow-hidden rounded-sm mt-8">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-sm mt-8" style={{ position: "relative", overflow: "hidden", aspectRatio: "3 / 4" }}>
                 <Image
                   src="/images/image2.png"
                   alt="YS-BASE ジュニア選手のプレー"
@@ -211,7 +211,7 @@ export default async function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6" style={{ position: "relative", overflow: "hidden", aspectRatio: "16 / 10" }}>
                 <Image src="/images/facility/goal-wide.jpg" alt="YS-BASE 天然芝フィールドとゴール" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
               </div>
               <h3 className="text-lg font-bold text-primary mb-2">天然芝のフィールド</h3>
@@ -228,7 +228,7 @@ export default async function Home() {
               </p>
             </div>
             <div className="text-center">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-sm mb-6" style={{ position: "relative", overflow: "hidden", aspectRatio: "16 / 10" }}>
                 <Image src="/images/facility/parking-lot.jpg" alt="YS-BASE 無料駐車場" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
               </div>
               <h3 className="text-lg font-bold text-primary mb-2">30台の無料駐車場</h3>

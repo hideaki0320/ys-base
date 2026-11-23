@@ -8,7 +8,7 @@ interface PageHeroProps {
 
 export function PageHero({ title, subtitle, image = "/images/hero_img.png" }: PageHeroProps) {
   return (
-    <section className="relative h-56 sm:h-72 overflow-hidden">
+    <section className="relative h-56 sm:h-72 overflow-hidden" style={{ position: "relative", overflow: "hidden" }}>
       <Image src={image} alt="" fill className="object-cover" priority />
       <div className="absolute inset-0 bg-gradient-to-b from-primary-dark/70 via-primary/50 to-primary-dark/80" />
       <div className="relative h-full flex flex-col items-center justify-center text-center px-4 pt-16">
